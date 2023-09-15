@@ -246,11 +246,15 @@
                 "server": "https://himssdqm.salessbx.smiledigitalhealth.com/fhir/",
                 un: "",
                 pw: ""
+            }, {
+                "server": "https://himssball.salessbx.smiledigitalhealth.com/smile-ai/prompt",
+                un: "",
+                pw: ""
             }],
             baseURL: "",
             baseCredentials: "",
         };
-        dataParams.baseURL = dataParams.servers[3].server;
+        dataParams.baseURL = dataParams.servers[4].server;
 
         //Get the parameter value from the subsection first; otherwise get it from the root
         getParam = (paramList, section, param) => {
@@ -633,12 +637,58 @@
                         <!-- ********** START: Mock EMR Content ********** -->
 
 
-                        <select class="serverSelect" id="FHIRServer" onChange="fhirGridParams.baseURL=this.value; loadPatientsInit('')">
+                        <select class="serverSelect" id="FHIRServer">
                         </select>
 
-
-
-
+                        <header>
+                            <h1>Patient Viewer</h1>
+                            <div id="search-box">
+                                <input type="text" id="patient-id" placeholder="Enter Patient Identifier">
+                                <button id="search-btn">Search</button>
+                            </div>
+                            <div id="patient-info" class="hidden">
+                                <!-- Patient info will be populated here -->
+                            </div>
+                    
+                            <div class="content">
+                                <label for="persona">Select Persona:</label>
+                                <select id="persona" onchange="showOptions(this.value)">
+                                    <option value="">--Select--</option>
+                                    <option value="Patient">Patient</option>
+                                    <option value="Provider">Provider</option>
+                                    <option value="Payer">Payer</option>
+                                    <option value="Population Health">Population Health</option>
+                                </select>
+                        
+                                <div id="patientOptions" class="hidden">
+                                    <label>Select Option:</label>
+                                    <input type="radio" name="patientOption" value="Observations" onclick="showPrompts(this.value)"> Observations
+                                    <input type="radio" name="patientOption" value="Encounter"> Encounter
+                                    <input type="radio" name="patientOption" value="Conditions"> Conditions
+                                    <input type="radio" name="patientOption" value="Immunizations"> Immunizations
+                                    <input type="radio" name="patientOption" value="CareGaps"> CareGaps
+                                    <input type="radio" name="patientOption" value="Clinical Notes"> Clinical Notes
+                                </div>
+                    
+                                <div id="observationPrompts" class="hidden">
+                                    <label>Select Prompts:</label>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" name="observationPrompt" value="What can you tell me about these observations?"> What can you tell me about these observations?<br>
+                                        <input type="checkbox" name="observationPrompt" value="Can you explain each of them in detail and tell if the values are within the normal bounds?"> Can you explain each of them in detail and tell if the values are within the normal bounds?<br>
+                                        <input type="checkbox" name="observationPrompt" value="Can you explain these results in both clinical and layman terms separately?"> Can you explain these results in both clinical and layman terms separately?<br>
+                                        <input type="checkbox" name="observationPrompt" value="Are there any abnormalities in these results?"> Are there any abnormalities in these results?<br>
+                                    </div>
+                                </div>
+                                     <!-- Content for Conditions, Immunizations, Encounters, CareGaps etc. will go here -->
+                            </div>
+                        
+                    
+                            <div class="textbox-container">
+                                <textarea id="selectedValue" rows="4" cols="50" readonly></textarea>
+                                <button onclick="submitData()">Submit</button>
+                            </div>
+                        
+                        </header>
 
                         <!-- ********** END: Mock EMR Content ********** -->
                     </div>
@@ -695,6 +745,7 @@
 
 
 <!--   Core JS Files   -->
+<script src="assets/js/patientService.js"></script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
     crossorigin="anonymous"></script> -->
