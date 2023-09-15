@@ -99,11 +99,7 @@ function submitData() {
     fetch('https://himssball.salessbx.smiledigitalhealth.com/smile-ai/prompt', {
         method: 'POST',
         headers: {
-            'Access-Control-Allow-Headers' : 'Content-Type',
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            "Access-Control-Allow-Credentials":"true",
-            "Access-Control-Allow-Headers": "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(patientData)
     })
