@@ -1,0 +1,71 @@
+:root {
+    --line: #aaa;
+    --animationDuration: 1000ms;
+}
+
+.abcFlowContainer {
+    height: 100%;
+    width: 100%;
+}
+
+.abcFlowContainer .grid {
+    display: flex;
+    height: 100%;
+}
+
+.abcFlowContainer .row {
+    flex-flow: row nowrap;
+}
+
+.abcFlowContainer .column {
+    flex-flow: column nowrap;
+    width: 100%;
+}
+
+.abcFlowContainer .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.abcFlowContainer svg.abcFlow {
+    left: 100px;
+    position: absolute;
+}
+
+.abcFlowContainer path {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 1px;
+    stroke-dasharray: 1, 4;
+}
+
+.abcFlowContainer .abcFlowActor {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    /* background: rgba(0, 64, 255, 0.5); */
+    position: absolute;
+    border: 2px solid #88888888;
+    al
+}
+
+@keyframes abcFlowForwards {
+    0% {
+        offset-distance: 0%;
+    }
+
+    100% {
+        offset-distance: 100%;
+    }
+}
+
+@keyframes abcFlowBackwards {
+    0% {
+        offset-distance: 100%;
+    }
+
+    100% {
+        offset-distance: 0%;
+    }
+}

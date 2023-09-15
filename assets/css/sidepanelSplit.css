@@ -1,0 +1,84 @@
+:root {
+    /* current and starting width; this value can change */
+    --sidepanelWidth: 0px;
+    /* expanded state width; this value is static */
+    --sidepanelExpandedWidth: 600px;
+    /* The portion of the sidepanel tab that sticks out when the sidepanel is closed */
+    --sidepanelTab: 22px;
+    --viewportWidth: 1260px;
+}
+
+/* Sidepanel (rightside slideout and split screen drawer) */
+
+body {
+    overflow: hidden;
+}
+
+.sidepanelOutside {
+    display: block;
+    width: var(--viewportWidth);
+    overflow: hidden;
+}
+
+.sidepanelOutside .sidepanelLeft {
+    width: calc(var(--viewportWidth) - var(--sidepanelWidth));
+}
+
+.sidepanelOutside .sidepanelContainer {
+    position: absolute;
+    top: 0px;
+    width: var(--sidepanelExpandedWidth);
+    left: calc(var(--viewportWidth) - var(--sidepanelWidth));
+    overflow: hidden;
+}
+
+.sidepanelContainer .sidepanel {
+    position: relative;
+    left: var(--sidepanelTab);
+    top: 0px;
+    height: 100vh;
+    background-color: #1C2833;
+    width: var(--sidepanelExpandedWidth);
+    margin-left: var(--sidepanelWidth);
+    z-index: 2;
+    color: #f1f1f2;
+    font-family: Helvetica;
+    /* text-align: center; */
+    filter: drop-shadow(-4px 0px 4px #000);
+}
+
+.sidepanelOutside .circle {
+    position: absolute;
+    width: 36px;
+    height: 44px;
+    border-radius: 30%;
+    font-size: 16px;
+    background-color: #1C2833;
+    color: #f1f1f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: calc(80% - 22px);
+    margin-left: -6px;
+    left: calc(var(--viewportWidth) - var(--sidepanelWidth) - 16px);
+    z-index: 3;
+    cursor: pointer;
+    opacity: 25%;
+}
+
+.sidepanelOutside .circle:hover {
+    color: #af0;
+    opacity: 100%;
+}
+
+.sidepanelOutside .fa-chevron-left {
+    margin-right: 5px;
+}
+
+.sidepanelOutside .fa-chevron-right {
+    margin-left: 5px;
+}
+
+.sidepanelOutside .hide {
+    display: none;
+}

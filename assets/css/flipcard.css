@@ -1,0 +1,55 @@
+/* abcCard: Card Flipping */
+.abcCardContainer {
+    display: inline-block;
+    width: calc(var(--sidepanelExpandedWidth) - 0px);
+    height: 100vh;
+    /* margin: 40px 0; */
+    perspective: 600px;
+}
+
+.abcCardContainer .card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transform-origin: center right;
+    transition: transform 1s;
+}
+
+.abcCardContainer .card.is-flipped {
+    transform: translateX(-100%) rotateY(-180deg);
+}
+
+.abcCardContainer .cardFace {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+
+.abcCardContainer .cardFaceFront {
+    background: #e1eaf2;
+    padding-top: 70px;
+}
+
+.abcCardContainer .cardFaceBack {
+    background: #00f;
+    transform: rotateY(180deg);
+}
+
+.abcCardContainer .flipButton {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #1C283340;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 3px;
+    color: #ffffffc0;
+}
+
+.abcCardContainer .flipButton:hover {
+    background-color: #1C2833;
+    color: #af0;
+}
