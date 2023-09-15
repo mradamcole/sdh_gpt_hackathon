@@ -95,8 +95,25 @@ function submitData() {
         value: selectedValue
     };
 
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    var raw = JSON.stringify(patientData);
+
+    var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow'
+    };
+
+    fetch("https://himssball.salessbx.smiledigitalhealth.com/smile-ai/prompt", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));
+
     // Make the REST API call
-    fetch('https://himssball.salessbx.smiledigitalhealth.com/smile-ai/prompt', {
+    /* fetch('YOUR_API_ENDPOINT_HERE', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -110,5 +127,5 @@ function submitData() {
     })
     .catch((error) => {
         console.error('Error:', error);
-    });
+    }); */
 }
