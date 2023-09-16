@@ -1,14 +1,3 @@
-document.getElementById('search-btn').addEventListener('click', function() {
-    const patientId = document.getElementById('patient-id').value;
-
-    if (!patientId) {
-        alert('Please enter a patient identifier.');
-        return;
-    }
-
-    window.fhirClient.request(`Patient/${patientId}`).then((patient) => displayPatientInfo(patient));
-});
-
 function displayPatientInfo(patientData) {
     try {
         const name = patientData.name && patientData.name[0] ? `${patientData.name[0].given.join(' ')} ${patientData.name[0].family}` : 'N/A';
@@ -73,12 +62,17 @@ document.querySelectorAll('input[name="observationPrompt"]').forEach(function(ch
     });
 });
 
+function showResponse(data) {
+    const responseValue = document.getElementById('responseValue');
+    responseValue.innerText = `${data[data.length - 1].content}`;
+}
+
 // ... existing functions ...
 
 
 function submitData(role) {
     const selectedValue = document.getElementById('selectedValue').value;
-    const patientId = document.getElementById('patient-id').value;
+    const patientId = document.getElementById('PatientSearchValue').value;
     const patientData = {
         prompt: selectedValue,
         role: role
@@ -118,6 +112,7 @@ function submitData(role) {
     .then(data => {
         console.log('Success:', data);
         // Handle the response data as needed
+        this.showResponse(data);
     })
     .catch((error) => {
         console.error('Error:', error);
