@@ -70,7 +70,12 @@ function showResponse(data) {
 // ... existing functions ...
 
 
+function resetResponse(){
+    document.getElementById('responseValue').innerText = '';
+}
+
 function submitData(role) {
+    resetResponse();
     const selectedValue = document.getElementById('selectedValue').value;
     const patientId = document.getElementById('PatientSearchValue').value;
     const patientData = {
