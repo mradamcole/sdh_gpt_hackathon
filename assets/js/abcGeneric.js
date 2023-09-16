@@ -1,12 +1,12 @@
 /*************** Generic functions ***************/
 changeServer = () => {
-//change FHIR servers and  Update the credentials
+    //change FHIR servers and  Update the credentials
     dataParams.baseCredentials = btoa(`${FHIRRefByRef(dataParams.servers, "server", dataParams.baseURL, "un")}:${FHIRRefByRef(dataParams.servers, "server", dataParams.baseURL, "pw")}`);
 }
 
 addItemToSelect = (selectID, itemsAr) => {
-//Populate list of FHIR servers
-let sel = document.getElementById(selectID);
+    //Populate list of FHIR servers
+    let sel = document.getElementById(selectID);
     itemsAr.forEach(element => {
         opt = document.createElement("option");
         opt.text = element;
@@ -15,14 +15,28 @@ let sel = document.getElementById(selectID);
 };
 
 FHIRRefByRef = (ar, searchName, searchValue, getNode) => {
-//Find a name=value in a FHIR array, and return a given node within. (E.g. Find link["relation"]="next" and return the URL)
-for (let i = 0; i < ar.length; i++) {
+    //Find a name=value in a FHIR array, and return a given node within. (E.g. Find link["relation"]="next" and return the URL)
+    for (let i = 0; i < ar.length; i++) {
         if (ar[i][searchName] == searchValue) {
             return ar[i][getNode];
             break;
         }
     }
     return "";
+}
+
+function keypressDelay(fn, ms) {
+    //Wait for a small delay while typing in the search box before calling the server
+    let timer = 0
+    return function (...args) {
+        clearTimeout(timer)
+        timer = setTimeout(fn.bind(this, ...args), ms || 0)
+    }
+}
+
+getParam = (paramList, section, param) => {
+    //Get the parameter value from the subsection first; otherwise get it from the root
+    return paramList[section][param] || paramList[param]
 }
 
 updateStyleRule = (selectorVal, property, newVal, toggleVal = null) => {
