@@ -1,0 +1,14 @@
+/* animation while the server is fetching data */
+@keyframes fadeInFadeOut {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 33%
+    }
+}
+
+.fadeInFadeOut {
+    animation: fadeInFadeOut 800ms infinite alternate;
+}
