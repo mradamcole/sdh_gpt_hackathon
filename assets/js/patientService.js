@@ -75,6 +75,9 @@ function resetResponse(){
 }
 
 function submitData(role) {
+    var submitButton = document.getElementById('submitButton');
+    submitButton.innerText = 'Loading...';
+    submitButton.setAttribute('disabled', 'disabled');
     resetResponse();
     const selectedValue = document.getElementById('selectedValue').value;
     const patientId = document.getElementById('PatientSearchValue').value;
@@ -117,9 +120,13 @@ function submitData(role) {
     .then(data => {
         console.log('Success:', data);
         // Handle the response data as needed
+        submitButton.innerText = 'Submit';
+        submitButton.removeAttribute('disabled');
         this.showResponse(data);
     })
     .catch((error) => {
+        submitButton.innerText = 'Submit';
+        submitButton.removeAttribute('disabled');
         console.error('Error:', error);
     });
 }

@@ -775,33 +775,29 @@
                                 <select class="serverSelect" id="FHIRServer"></select>
                             </div>
                         </div> -->
-
+                        <div class="alert alert-danger text-center" role="alert">
+                            This is a non-PHI friendly demo.
+                          </div>
                         <div class="card shadow p-3 m-5 bg-body rounded">
                             <div id="patientDetails" class="p-3 mb-2 mx-5">
-                                <p class="text-center fs-1">Patient Viewer</p>
+                                <h1 class="text-center fs-1">Patient Viewer</h1>
 
                                 <!--************** The dropdown search box, Only one search field per page supported **************-->
                                 <!-- The search input field -->
-                                <label for="PatientSearch" class="bmd-label-floating">Patient:</label>
-                                <input type="text" class="form-control" id="PatientSearch" required onblur="setTimeout(() => {
-                                    document.getElementById('abcFHIRGridContainer').style.visibility = 'hidden';
-                                    document.getElementById('abcFHIRGridContainerLoading').style.visibility = 'hidden';
-                                }, 250);">
-                                <input type="hidden" value="" id="PatientSearchValue">
-                                <!-- The Dropdown Container, and the animation for server fetches -->
-                                <div id="abcFHIRGridContainer" style="visibility:hidden;"></div>
-                                <div id="abcFHIRGridContainerLoading" class="fadeInFadeOut" style="z-index: 999; visibility:hidden; background-color:rgb(0, 140, 255); height:3px;"></div>
-
-                                <!--
                                 <div class="input-group mb-3">
                                     <span class="input-group-text" id="basic-addon1">
                                         <i class="fa-solid fa-id-card-clip"></i>
                                     </span>
-                                    <input id="patient-id" type="text" class="form-control" placeholder="Enter Patient Identifier"
-                                        aria-label="Patient Identifier" aria-describedby="basic-addon1">
-                                    <button type="button" class="btn btn-secondary" id="search-btn">Search</button>
-                                </div>
-                                -->
+                                    <input id="PatientSearch" type="text" class="form-control" placeholder="Enter a Patient's name" aria-label="Username" aria-describedby="basic-addon1"
+                                    required onblur="setTimeout(() => {
+                                        document.getElementById('abcFHIRGridContainer').style.visibility = 'hidden';
+                                        document.getElementById('abcFHIRGridContainerLoading').style.visibility = 'hidden';
+                                    }, 250);">
+                                    <input type="hidden" value="" id="PatientSearchValue">
+                                    <!-- The Dropdown Container, and the animation for server fetches -->
+                                    <div id="abcFHIRGridContainer" style="visibility:hidden;"></div>
+                                    <div id="abcFHIRGridContainerLoading" class="fadeInFadeOut" style="z-index: 999; visibility:hidden; background-color:rgb(0, 140, 255); height:3px;"></div>
+                                  </div>
 
                                 <script>
                                     var abcFHIRGrid;    //requires global scoping
@@ -824,7 +820,7 @@
                                 </div>
 
 
-                                <p class="fs-5 pt-3">Select a Resource</p>
+                                <!-- <p class="fs-5 pt-3">Select a Resource</p>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="inlineRadioOptions"
                                         id="flexRadioDefault1" value="Observations"
@@ -867,7 +863,7 @@
                                     <label class="form-check-label" for="flexRadioDefault6">
                                         Clinical Notes
                                     </label>
-                                </div>
+                                </div> -->
 
 
                                 <p class="fs-5 pt-3">Select a Prompt</p>
@@ -911,8 +907,11 @@
                                         ></textarea>
                                 </div>
 
-                                <button type="button" class="btn btn-primary my-3"
-                                    onclick="submitData(abcActorActor)">Submit</button>
+                                <button class="btn btn-primary" type="button" id="submitButton" 
+                                onclick="submitData(abcActorActor)">
+                                    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                                    Submit
+                                    </button>
 
                                 <div class="input-group py-3" id="responseContainer">
                                     <span class="input-group-text">Response:</span>
