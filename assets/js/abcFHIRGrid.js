@@ -117,12 +117,13 @@ autoCompleteFHIRToArray = (data) => {
 async function loadPatients(api, clearData) {
     try {
         document.getElementById("abcFHIRGridContainerLoading").style.visibility = "visible";
-        const source = await fetch(api);
-        const data = await source.json();
-        if (clearData) abcFHIRGrid.clearData();
-        abcFHIRGridParams.pageURL = FHIRRefByRef(data.link, "relation", "next", "url");
-        abcFHIRGrid.addData(autoCompleteFHIRToArray(data));
-        document.getElementById("abcFHIRGridContainerLoading").style.visibility = "hidden";
+        
+        window.fhirClient.request(api).then((data) => {
+            if (clearData) abcFHIRGrid.clearData();
+            abcFHIRGridParams.pageURL = FHIRRefByRef(data.link, "relation", "next", "url");
+            abcFHIRGrid.addData(autoCompleteFHIRToArray(data));
+            document.getElementById("abcFHIRGridContainerLoading").style.visibility = "hidden";    
+        });        
     } catch (error) {
         console.log("err: ", error);
     }
@@ -130,8 +131,7 @@ async function loadPatients(api, clearData) {
 
 //Reset the data in the dropdown Table and start a new query
 loadPatientsInit = (query) => {
-    let api = getParam(abcFHIRGridParams, abcFHIRGridParams.template, "baseURL") +
-        getParam(abcFHIRGridParams, abcFHIRGridParams.template, "resource") + "?" +
+    let api = getParam(abcFHIRGridParams, abcFHIRGridParams.template, "resource") + "?" +
         "_elements=" + getParam(abcFHIRGridParams, abcFHIRGridParams.template, "elements") + "&" +
         ((getParam(abcFHIRGridParams, abcFHIRGridParams.template, "deepSearch")) ? "phonetic=" : getParam(abcFHIRGridParams, abcFHIRGridParams.template, "searchWithin") + "=") + query;
     loadPatients(api, typeof abcFHIRGrid != "undefined");
@@ -180,8 +180,9 @@ abcFHIRGridInstantiate = () => {
     abcFHIRGrid.on("rowClick", function (e, row) {
         document.getElementById(getParam(abcFHIRGridParams, abcFHIRGridParams.template, "searchField")).value = row.getData()[getParam(abcFHIRGridParams, abcFHIRGridParams.template, "displayField")];
         document.getElementById(getParam(abcFHIRGridParams, abcFHIRGridParams.template, "searchField") + "Value").value = row.getData()[getParam(abcFHIRGridParams, abcFHIRGridParams.template, "saveField")];
-        // ********** Remark out or delete the following field
-        alert("Patinet ID = " + document.getElementById(getParam(abcFHIRGridParams, abcFHIRGridParams.template, "searchField") + "Value").value)
+
+        const patientId = document.getElementById(getParam(abcFHIRGridParams, abcFHIRGridParams.template, "searchField") + "Value").value;
+        window.fhirClient.request(`Patient/${patientId}`).then((patient) => displayPatientInfo(patient));
     });
 
     //Add a listener for key press on the search box
