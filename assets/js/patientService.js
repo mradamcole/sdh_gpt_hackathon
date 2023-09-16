@@ -73,6 +73,11 @@ document.querySelectorAll('input[name="observationPrompt"]').forEach(function(ch
     });
 });
 
+function showResponse(data) {
+    const responseValue = document.getElementById('responseValue');
+    responseValue.innerText = `${data[data.length - 1].content}`;
+}
+
 // ... existing functions ...
 
 
@@ -118,6 +123,7 @@ function submitData(role) {
     .then(data => {
         console.log('Success:', data);
         // Handle the response data as needed
+        this.showResponse(data);
     })
     .catch((error) => {
         console.error('Error:', error);
