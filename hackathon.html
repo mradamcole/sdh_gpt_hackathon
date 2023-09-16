@@ -15,8 +15,10 @@
     <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
 
     <!--  Fonts and icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
+    <link rel="stylesheet" type="text/css"
+        href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
     <!--  Logger  -->
@@ -36,8 +38,8 @@
     <link rel='stylesheet' type="text/css" href='assets/css/abcFlow.css'>
 
     <!--  Bootstrap  -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <style>
         :root {
@@ -618,12 +620,13 @@
 <body>
 
     <div id="sidepanelOutside" class="sidepanelOutside">
-        <div id="sidepanelLeft" class="sidepanelLeft">
+        <div id="sidepanelLeft" class="sidepanelLeft overflow-scroll">
             <div class="mockEMRContainer">
                 <!-- MockEMR Heading row -->
                 <div class="rowTitle">
                     <span class="headingTitle2" style="margin-left: 10px;">
-                        </i> Demo <i class="fa fa-arrow-circle-right"></i> Hackathon <i class="fa fa-arrow-circle-right"></i>
+                        </i> Demo <i class="fa fa-arrow-circle-right"></i> Hackathon <i
+                            class="fa fa-arrow-circle-right"></i>
                     </span>
                     <span class="alignRight">
                         <span class="headingTitle">&nbsp;&nbsp;&nbsp;Mock EMR&nbsp;&nbsp;&nbsp;</span>
@@ -636,59 +639,123 @@
                     <div class="bodyRow">
                         <!-- ********** START: Mock EMR Content ********** -->
 
-
-                        <select class="serverSelect" id="FHIRServer">
-                        </select>
-
-                        <header>
-                            <h1>Patient Viewer</h1>
-                            <div id="search-box">
-                                <input type="text" id="patient-id" placeholder="Enter Patient Identifier">
-                                <button id="search-btn">Search</button>
+                        <div class="card shadow p-3 m-5 bg-body rounded">
+                            <div class="card-body">
+                                <select class="serverSelect" id="FHIRServer"></select>
                             </div>
-                            <div id="patient-info" class="hidden">
-                                <!-- Patient info will be populated here -->
-                            </div>
-                    
-                            <div class="content">
-                                <label for="persona">Select Persona:</label>
-                                <select id="persona" onchange="showOptions(this.value)">
-                                    <option value="">--Select--</option>
-                                    <option value="Patient">Patient</option>
-                                    <option value="Provider">Provider</option>
-                                    <option value="Payer">Payer</option>
-                                    <option value="Population Health">Population Health</option>
-                                </select>
-                        
-                                <div id="patientOptions" class="hidden">
-                                    <label>Select Option:</label>
-                                    <input type="radio" name="patientOption" value="Observations" onclick="showPrompts(this.value)"> Observations
-                                    <input type="radio" name="patientOption" value="Encounter"> Encounter
-                                    <input type="radio" name="patientOption" value="Conditions"> Conditions
-                                    <input type="radio" name="patientOption" value="Immunizations"> Immunizations
-                                    <input type="radio" name="patientOption" value="CareGaps"> CareGaps
-                                    <input type="radio" name="patientOption" value="Clinical Notes"> Clinical Notes
+                        </div>
+
+                        <div class="card shadow p-3 m-5 bg-body rounded">
+                            <div id="patientDetails" class="p-3 mb-2 mx-5">
+                                <p class="text-center fs-1">Patient Viewer</p>
+
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text" id="basic-addon1">
+                                        <i class="fa-solid fa-id-card-clip"></i>
+                                    </span>
+                                    <input id="patient-id" type="text" class="form-control" placeholder="Enter Patient Identifier"
+                                        aria-label="Patient Identifier" aria-describedby="basic-addon1">
+                                    <button type="button" class="btn btn-secondary" id="search-btn">Search</button>
                                 </div>
-                    
-                                <div id="observationPrompts" class="hidden">
-                                    <label>Select Prompts:</label>
-                                    <div class="checkbox-container">
-                                        <input type="checkbox" name="observationPrompt" value="What can you tell me about these observations?"> What can you tell me about these observations?<br>
-                                        <input type="checkbox" name="observationPrompt" value="Can you explain each of them in detail and tell if the values are within the normal bounds?"> Can you explain each of them in detail and tell if the values are within the normal bounds?<br>
-                                        <input type="checkbox" name="observationPrompt" value="Can you explain these results in both clinical and layman terms separately?"> Can you explain these results in both clinical and layman terms separately?<br>
-                                        <input type="checkbox" name="observationPrompt" value="Are there any abnormalities in these results?"> Are there any abnormalities in these results?<br>
+
+                                <div id="patient-info" class="hidden">
+                                    <!-- Patient info will be populated here -->
+                                </div>
+
+
+                                <p class="fs-5 pt-3">Select a Resource</p>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                        id="flexRadioDefault1" value="Observations"
+                                        (onclick)="showPrompts('Observations')">
+                                    <label class="form-check-label" for="flexRadioDefault1">
+                                        Observations
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                        id="flexRadioDefault2" value="Encounter">
+                                    <label class="form-check-label" for="flexRadioDefault2">
+                                        Encounter
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                        id="flexRadioDefault3" value="Encounter">
+                                    <label class="form-check-label" for="flexRadioDefault3">
+                                        Conditions
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                        id="flexRadioDefault4" value="Immunizations">
+                                    <label class="form-check-label" for="flexRadioDefault4">
+                                        Immunizations
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                        id="flexRadioDefault5" value="CareGaps">
+                                    <label class="form-check-label" for="flexRadioDefault5">
+                                        CareGaps
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                        id="flexRadioDefault6" value="ClinicalNotes">
+                                    <label class="form-check-label" for="flexRadioDefault6">
+                                        Clinical Notes
+                                    </label>
+                                </div>
+
+
+                                <p class="fs-5 pt-3">Select a Prompt</p>
+                                <div id="observationPrompts">
+                                    <div class="form-check">
+                                        <input class="form-check-input" name="observationPrompt" type="checkbox"
+                                            value="What can you tell me about these observations?"
+                                            id="flexCheckDefault">
+                                        <label class="form-check-label" for="flexCheckDefault">
+                                            What can you tell me about these observations?
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" name="observationPrompt" type="checkbox" value="Can you explain each of them in detail and tell if the values are within the
+                                        normal bounds?" id="flexCheckChecked">
+                                        <label class="form-check-label" for="flexCheckChecked">
+                                            Can you explain each of them in detail and tell if the values are within the
+                                            normal bounds?
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" name="observationPrompt" type="checkbox"
+                                            value="Can you explain these results in both clinical and layman terms separately?"
+                                            id="flexCheckChecked">
+                                        <label class="form-check-label" for="flexCheckChecked">
+                                            Can you explain these results in both clinical and layman terms separately?
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" name="observationPrompt" type="checkbox"
+                                            value="Are there any abnormalities in these results?" id="flexCheckChecked">
+                                        <label class="form-check-label" for="flexCheckChecked">
+                                            Are there any abnormalities in these results?
+                                        </label>
                                     </div>
                                 </div>
-                                     <!-- Content for Conditions, Immunizations, Encounters, CareGaps etc. will go here -->
+
+                                <div class="input-group py-3">
+                                    <span class="input-group-text">Your query</span>
+                                    <textarea id="selectedValue" class="form-control" aria-label="With textarea"
+                                        readonly></textarea>
+                                </div>
+
+                                <button type="button" class="btn btn-primary my-3"
+                                    onclick="submitData()">Submit</button>
                             </div>
-                        
-                    
-                            <div class="textbox-container" id="inputArea">
-                                <textarea id="selectedValue" rows="4" cols="50" readonly></textarea>
-                                <button id="submitButton" onclick="submitData()">Submit</button>
-                            </div>
-                        
-                        </header>
+                        </div>
+
+
 
                         <!-- ********** END: Mock EMR Content ********** -->
                     </div>
@@ -708,15 +775,21 @@
                     <div class="cardFace cardFaceFront">
                         <div id="abcActorContainer" class="abcActorContainer">
                             <div style="display: flex; flex-flow: row nowrap;" class="abcActor">
-                                <div id="abcStoryProvider" class="regular provider"><i class="fa fa-stethoscope"></i> <span style="color: #000;">Provider</span></div>
-                                <div id="abcStoryPatient" class="regular patient"><i class="fa fa-user"></i> <span style="color: #000;">Patient</span></div>
-                                <div id="abcStoryAdmin" class="focus admin"><i class="fa-solid fa-hand-holding-medical"></i> <span style="color: #000;">Admin</span></div>
+                                <div id="abcStoryProvider" class="regular provider"><i class="fa fa-stethoscope"></i>
+                                    <span style="color: #000;">Provider</span>
+                                </div>
+                                <div id="abcStoryPatient" class="regular patient"><i class="fa fa-user"></i> <span
+                                        style="color: #000;">Patient</span></div>
+                                <div id="abcStoryAdmin" class="focus admin"><i
+                                        class="fa-solid fa-hand-holding-medical"></i> <span
+                                        style="color: #000;">Admin</span></div>
                             </div>
                             <div class="abcActor">
                                 <div class="storyMain" id="abcStoryMain">&nbsp;
                                     <section id="abcStoryProviderMain" class="abcStorySection"></section>
                                     <section id="abcStoryPatientMain" class="abcStorySection"></section>
-                                    <section id="abcStoryAdminMain" class="abcStorySection" style="display:block; opacity: 1"></section>
+                                    <section id="abcStoryAdminMain" class="abcStorySection"
+                                        style="display:block; opacity: 1"></section>
                                 </div>
                             </div>
                         </div>
@@ -746,7 +819,8 @@
 
 <!--   Core JS Files   -->
 <script src="assets/js/patientService.js"></script>
-<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.1.min.js"
+    integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
     crossorigin="anonymous"></script> -->
 
