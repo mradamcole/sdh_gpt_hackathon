@@ -905,8 +905,11 @@
                                         ></textarea>
                                 </div>
 
-                                <button type="button" class="btn btn-primary my-3"
-                                    onclick="submitData(abcActorActor)">Submit</button>
+                                <button class="btn btn-primary" type="button" id="submitButton" 
+                                onclick="submitData(abcActorActor)">
+                                    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                                    Submit
+                                    </button>
 
                                 <div class="input-group py-3" id="responseContainer">
                                     <span class="input-group-text">Response:</span>
