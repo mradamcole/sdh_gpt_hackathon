@@ -354,11 +354,78 @@
             abcActorFocus("abcStory" + abcActorActor, s);
         }
 
+        function clearPrompts(){
+            document.getElementById('observationPrompts').innerHTML = '';
+        }
+
+        function makePrompt(prompt, num) {
+            var div = document.createElement('div');
+            div.className='form-check';
+            var input = document.createElement('input');
+            div.appendChild(input);
+            input.className='form-check-input';
+            input.name = 'observationPrompt';
+            input.type = 'radio';
+            input.value = prompt;
+            input.id = 'promptCheck' + num;
+            input.addEventListener('change', function() {
+                document.getElementById('selectedValue').value = input.value;
+            });
+            var label = document.createElement('label');
+            div.appendChild(label);
+            label.className = 'form-check-label';
+            label.setAttribute('for', 'promptCheck' + num);
+            label.innerText = prompt;
+            return div;
+        }
+
+        function setProviderPrompts(){
+            clearPrompts();
+            var container = document.getElementById('observationPrompts');
+            var prompt1 = makePrompt("Give me a summary of this patient's current status.", 1);
+            container.appendChild(prompt1);
+            var prompt2 = makePrompt("What is my patient's current medication list, including medication type, dosage, frequency and prescribing provider?", 2);
+            container.appendChild(prompt2);
+            var prompt3 = makePrompt("What was the result of this patient's last stress test?", 3);
+            container.appendChild(prompt3);
+            var prompt4 = makePrompt("Who is this patient's current healthcare power of attorney and point of contact?", 4);
+            container.appendChild(prompt4);
+        }
+
+        function setPatientPrompts(){
+            clearPrompts();
+            var container = document.getElementById('observationPrompts');
+            var prompt1 = makePrompt("When is my next cardiology appointment?", 1);
+            container.appendChild(prompt1);
+            var prompt2 = makePrompt("How many blood pressure medication refills do I have left?", 2);
+            container.appendChild(prompt2);
+            var prompt3 = makePrompt("What are my daily medications, including a dosage schedule?", 3);
+            container.appendChild(prompt3);
+            var prompt4 = makePrompt("What was my most recent test result?", 4);
+            container.appendChild(prompt4);
+
+        }
+
+        function setAdminPrompts(){
+            clearPrompts();
+            var container = document.getElementById('observationPrompts');
+            var prompt1 = makePrompt("How many patients are there?", 1);
+            container.appendChild(prompt1);
+            var prompt2 = makePrompt("How many patients had a visit in the last month?", 2);
+            container.appendChild(prompt2);
+            var prompt3 = makePrompt("How many patients tested positive for Covid?", 3);
+            container.appendChild(prompt3);
+            var prompt4 = makePrompt("How many patients detected a fever over 102 degrees fahrenheit?", 4);
+            container.appendChild(prompt4);
+
+        }
+
         function setProviderRole(){
             console.log('Setting role to Provider');
             abcActorStage = 6;
             abcActorActor = 'Provider';
             abcActorFocus('abcStoryProvider', "You are now acting as a Provider. You have access to query multiple patients or a single patient.");
+            setProviderPrompts();
         }
 
         function setPatientRole(){
@@ -366,6 +433,7 @@
             abcActorStage = 5;
             abcActorActor = 'Patient';
             abcActorFocus('abcStoryPatient', "You are now acting as a Patient. You have access to query only a single patient, and you will receive answers in a patient-friendly tone.");
+            setPatientPrompts();
         }
 
         function setAdminRole(){
@@ -373,6 +441,7 @@
             abcActorStage = 0;
             abcActorActor = 'Admin';
             abcActorFocus('abcStoryAdmin', "You are now acting as an Admin. You have access to query across the full patient population.");
+            setAdminPrompts();
         }
 
         //Animate the transition between story boards, i.e. shift focus to another actor/tab {Provider, Patient, Admin} (within abcActor)
@@ -631,6 +700,9 @@
             //Add popup alerts
             abcAddPopup("flipCareButton", "Toggle between Demo Narration and API Monitor");
             abcAddPopup("toggleSidePanelButton", "Toggle side panel visibility");
+
+            // default role is provider
+            setProviderRole();
 
         });
 
