@@ -7,11 +7,12 @@ document.getElementById('search-btn').addEventListener('click', function() {
     }
 
     const xhr = new XMLHttpRequest();
-    const url = `http://localhost:8000/Patient/${patientId}`;
+    const url = `https://himssball.salessbx.smiledigitalhealth.com/fhir-request/Patient/${patientId}`;
 
     xhr.open('GET', url, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.setRequestHeader('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=');
+    xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const patientData = JSON.parse(xhr.responseText);
@@ -95,8 +96,9 @@ function submitData() {
         value: selectedValue
     };
 
-    var myHeaders = new Headers();
+    /* var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Access-Control-Allow-Origin", "*");
 
     var raw = JSON.stringify(patientData);
 
@@ -110,13 +112,14 @@ function submitData() {
     fetch("https://himssball.salessbx.smiledigitalhealth.com/smile-ai/prompt", requestOptions)
     .then(response => response.text())
     .then(result => console.log(result))
-    .catch(error => console.log('error', error));
+    .catch(error => console.log('error', error)); */
 
     // Make the REST API call
-    /* fetch('YOUR_API_ENDPOINT_HERE', {
+    fetch('https://himssball.salessbx.smiledigitalhealth.com/smile-ai/prompt', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
         },
         body: JSON.stringify(patientData)
     })
@@ -127,5 +130,5 @@ function submitData() {
     })
     .catch((error) => {
         console.error('Error:', error);
-    }); */
+    });
 }
