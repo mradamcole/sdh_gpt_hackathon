@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- *** NB! The following emptry :root{} must be the first style on the page. *** -->
+    <style>
+        :root {}
+    </style>
+
+    <title>Hackathon Sept2023</title>
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+
+
+    <!-- **********  STYLESHEETS  ********** -->
+    <!--  Fonts and icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <!-- Generic -->
+    <link rel="stylesheet" href="assets/css/abcGeneric.css">
+
+    <!--  Logger  -->
+    <link rel="stylesheet" type="text/css" href="assets/css/logger.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/sidepanelSplit.css">
+
+    <!--  JSON Viewer  -->
+    <link rel="stylesheet" type="text/css" href="assets/css/jquery.json-viewer.css">
+
+    <!-- Flip card -->
+    <link rel="stylesheet" type="text/css" href="assets/css/flipcard.css">
+
+    <!-- Resizing tabs -->
+    <link rel="stylesheet" type="text/css" href="assets/css/resizingTabs.css">
+
+    <!--  flow chart connectors and dynamic grid   -->
+    <link rel='stylesheet' type="text/css" href='assets/css/abcFlow.css'>
+
+    <!-- CSS: Tabulator (fhirGrid) -->
+    <link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator.min.css" rel="stylesheet">
+
+
+    <!-- **********  JAVASCRIPT LIBRARIES  ********** -->
+    <!--   Core JS Files   -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+
+    <!--  Logger  -->
+    <script type="text/javascript" src="assets/js/logger.js"></script>
+
+    <!--  JSON Viewer  -->
+    <script type="text/javascript" src="assets/js/jquery.json-viewer.js"></script>
+
+    <!-- flow chart connectors and dynamic grid -->
+    <script type="text/javascript" src='assets/js/abcFlow.js'></script>
+
+    <!-- Generic functions -->
+    <script type="text/javascript" src='assets/js/abcGeneric.js'></script>
+
+    <!-- abcFHIRGrid -->
+    <script type="text/javascript" src="assets/js/abcFHIRGrid.js"></script>
+
+    <!-- Tabulator (fhirGrid) -->
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.4.3/dist/js/tabulator.min.js"></script>
+
+    <!-- FHIRPath (dependency of fhirGrid)-->
+    <script type="text/javascript" src="assets/js/fhirpath.min.js"></script>
+    <script type="text/javascript" src="assets/js/fhirpath.r4.min.js"></script>
+
+
+    <style>
+        :root {
+            --textRevealDuration: 3s;
+            --emrBackgroundColor: #8ac;
+        }
+
+        body {
+            font-family: "Lato", sans-serif;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        .abcButton {
+            padding: 3px;
+            border-radius: 3px;
+            background-color: #c6c9cc;
+        }
+
+        .abcButton:hover {
+            background-color: #1C2833;
+            color: #af0;
+            cursor: pointer;
+        }
+
+        /* .mockEMR = the mock EMR */
+        .mockEMRContainer {
+            display: flex;
+            flex-flow: column;
+            height: 100vh;
+            overflow: auto;
+            box-sizing: border-box;
+        }
+
+        .mockEMRContainer pre,
+        .mockEMRContainer span,
+        .mockEMRContainer div {
+            /* Set width to 1 for debugging */
+            border: 0px solid #0f0;
+            box-sizing: border-box;
+        }
+
+
+        .mockEMRContainer .rowTitle {
+            min-height: 40px;
+            background: var(--emrBackgroundColor);
+            display: flex;
+            align-items: center;
+            filter: drop-shadow(0px 1px 2px #000);
+        }
+
+
+        .mockEMRContainer .rowTitle .alignRight {
+            margin-left: auto;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .mockEMRContainer .headingTitle {
+            font: oblique bold 24px arial;
+            color: #fff;
+            filter: drop-shadow(0px 0px 2px #000);
+        }
+
+        .mockEMRContainer .headingTitle2 {
+            font: bold 16px arial;
+            color: #fff;
+        }
+
+        .mockEMRContainer .rowBody {
+            flex: 1;
+            /* overflow-y: auto; */
+            overflow-y: hidden;
+            overflow-x: hidden;
+            margin: 5px 5px 0px 5px;
+        }
+
+        .mockEMRContainer .rowFooter {
+            font: 14px arial;
+            color: #fff;
+            background: var(--emrBackgroundColor);
+            filter: drop-shadow(0px 1px 2px #000);
+            padding-left: 6px;
+        }
+
+        .mockEMRContainer .rowFooter .popup {
+            color: #af0;
+        }
+
+        .mockEMRContainer .bodyRow {
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+        }
+
+        .mockEMRContainer .bodyRow .emr {
+            width: 60%;
+            height: 100%;
+            background-color: #cef;
+        }
+
+        .mockEMRContainer .bodyRow .abcAPIContainer {
+            flex: 1;
+            overflow: auto;
+            height: 100%;
+        }
+
+        .mockEMRContainer .button {
+            background-color: var(--emrBackgroundColor);
+            border: none;
+            color: #fff;
+            font-weight: bold;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 2px solid #ffffff00;
+        }
+
+        .mockEMRContainer .button:hover {
+            color: var(--emrBackgroundColor);
+            background-color: #1c2833;
+            border: 2px solid var(--emrBackgroundColor);
+            filter: drop-shadow(0px 0px 2px var(--emrBackgroundColor));
+            cursor: pointer;
+        }
+
+        .mockEMRContainer .cgrRow:hover {
+            background-color: var(--rowHighlightColor);
+            cursor: pointer;
+        }
+
+        .mockEMRContainer .dsList li {
+            border: 1px solid #ccc;
+            background-color: #fff;
+            padding: 3px 10px;
+            margin: 2px;
+        }
+
+        .mockEMRContainer .dsList li:hover {
+            border: 1px solid #444;
+            background-color: var(--rowHighlightColor);
+            cursor: pointer;
+        }
+
+        .mockEMRContainer .text-focus-in {
+            position: relative;
+            animation: text-focus-in var(--textRevealDuration) linear;
+        }
+
+        /********** Style the FHIR server select **********/
+        .serverSelect {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-top-color: rgb(206, 212, 218);
+            border-top-style: solid;
+            border-top-width: 1px;
+            border-right-color: rgb(206, 212, 218);
+            border-right-style: solid;
+            border-right-width: 1px;
+            border-bottom-color: rgb(206, 212, 218);
+            border-bottom-style: solid;
+            border-bottom-width: 1px;
+            border-left-width: 0px;
+            border-radius: 0.25rem;
+            padding-top: 0px;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            padding-bottom: 0px;
+            padding-left: 5px;
+        }
+    </style>
+
+    <script>
+        /*************** Global Data Parameters ***************/
+        let dataParams = {
+            servers: [{ //credentials: fill in if you wish (obviously INSECURE!!!), leave blank for anonymous / to be prompted in webGUI
+                "server": "http://localhost:8000/",
+                un: "admin",
+                pw: "password"
+            }, {
+                "server": "https://hapi.fhir.org/baseR4/",
+                un: "",
+                pw: ""
+            }, {
+                "server": "https://try.smilecdr.com/baseR4/",
+                un: "",
+                pw: ""
+            }, {
+                "server": "https://himssdqm.salessbx.smiledigitalhealth.com/fhir/",
+                un: "",
+                pw: ""
+            }],
+            baseURL: "",
+            baseCredentials: "",
+        };
+        dataParams.baseURL = dataParams.servers[3].server;
+
+        //Get the parameter value from the subsection first; otherwise get it from the root
+        getParam = (paramList, section, param) => {
+            return paramList[section][param] || paramList[param]
+        }
+
+
+
+
+        /*************** Mock EMR functions ***************/
+        var Logger; //Global variable for the API Monitor
+
+        //Look for a variable and replace it with dataParams.variable e.g.: url/Patient/{ptID} ==> url/Patient/<dataParams.ptID>
+        //TODO: I cheated and did this quick and dirty, hardcoded for ptID. Make this work for any variable; and use getParam so that it will search multi-levels within dataParams.
+        // **************************************************************** I'm pretty sure we can delete this for the Hackathon - I think it is specific to DQM
+        apiReplaceVar = (api) => {
+            if (api.search("{") >= 0) {
+                api = api.replace(/{ptID}/g, dataParams.curCareGap.ptID);
+            }
+            return api;
+        }
+
+
+        //Flip the card with the given cardID        
+        abcCardFlip = (cardID) => {
+            document.getElementById(cardID).classList.toggle('is-flipped');
+        }
+
+        //Define the contents for the story board (within abcActor)
+        let abcActorStage = 1;  //current actor story; see abcActorNext()
+        let abcActorActor;      //current actor; see abcActorNext()
+        abcActorNext = () => {
+            switch (abcActorStage) {
+                case 0:
+                    abcActorActor = "Admin"
+                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
+                        <p>Loading...</p>
+                        </div>`;
+                    break;
+                case 1:
+                    abcActorActor = "Admin";
+                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
+                        <p><i>As we progress through this demo we'll change actors between the Provider, Patient, and the Office Administrator. We'll let you know who the current actor is right here.</i></p>
+                        <p><i>Note: You can click the <i class="fa fa-repeat"></i> icon in the top-right to see the server interactions and learn how to integrate Care Gaps management
+                        into your environment. We suggest you run through the demo once before viewing the server interactions.</i></p>
+                    </div>`;
+                    break;
+                case 2:
+                    abcActorActor = "Admin";
+                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
+                        <p>This scenario starts with a Clinical Support Staff using the Smile Digital Quality Measure module, Care Gap Worklist feature to monitor a patient population for
+                        gaps in care prospectively. They will identify patients at risk of open care gaps related to the Colorectal Cancer Screening Quality Measure. Then they can
+                        easily schedule an appointment so the patient and clinician can discuss options for ensuring recommended treatment to prevent a gap in care.</p>
+                        <p><i>You are now playing the role of an office <b>Admin</b>istrator.</i></p>
+                            <ol><li>Drag a patient(s) at left to the calendar.
+                                <li>Click on an appointment in the calendar to jump to that Patient-Provider encounter.
+                            </ol>
+                    </div>`;
+                    break;
+                case 3:
+                    abcActorActor = "Provider";
+                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
+                        <p>During the patient visit, the Smile Digital Quality Measure module requests a Gaps in Care report. The clinician (provider) is notified of the resulting risks for gaps in care.</p>
+                        <p><i>Within your EMR, Select <b>Colorectal Cancer ScreeningFHIR</b> to start the process of closing it.</i></p>
+                        </div>`;
+                    break;
+                case 4:
+                    abcActorActor = "Provider";
+                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
+                        <p>The Smile Clinical Decision Support module provides the clinician with treatment recommendations based on the evidence-based American Cancer Society’s Guidelines for Colorectal
+                            Cancer Screening to avoid a gap in care.</p>
+                        <p><i>You can go with the recommended procedure/test and/or select a different one.</i></p>
+                    </div>`;
+                    break;
+                case 5:
+                    abcActorActor = "Patient";
+                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
+                        <p>Once the recommended intervention has been completed, the data relative to the Colorectal Cancer Screening Quality Measure is submitted to the Smile Digital Quality Measure server.</p>
+                    </div>`;
+                    break;
+                case 6:
+                    abcActorActor = "Provider";
+                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
+                        <p>During a subsequent patient visit, the Smile Digital Quality Measure module requests a new Gaps in Care report, which then shows that the patient has received treatment that meets the
+                            Colorectal Cancer Screening Quality Measure requirements.  The care gap risk has been proactively mitigated.</p>
+                        <p><i>To reset the data on the server and restart the demo, click the <i class="fa fa-recycle resetDemo"></i> icon in the title at top left.</i></p>
+                    </div>`;
+                    break;
+            }
+            abcActorStage++;
+            abcActorFocus("abcStory" + abcActorActor, s);
+        }
+
+        //Animate the transition between story boards, i.e. shift focus to another actor/tab {Provider, Patient, Admin} (within abcActor)
+        async function abcActorFocus(actorNew, content) {
+            actorNew = document.getElementById(actorNew);
+            const actorOld = document.getElementsByClassName("focus")[0];
+            const sectionOld = document.getElementById(actorOld.id + "Main");
+            const sectionNew = document.getElementById(actorNew.id + "Main");
+            const fade = getComputedStyle(document.documentElement).getPropertyValue("--abcStoryActorFadedOpacity");
+            addTransition(actorOld, { //background tab
+                flex: 2,
+                opacity: fade,
+                // "margin-top": "2px", //enable when we use rounded tabs
+            }, 1000);
+            addTransition(actorNew, {   //foreground tab
+                flex: 5,
+                opacity: 1,
+                // "border-bottom": "1px solid #e94;",  //enable when we use rounded tabs
+                // "margin-top": "-2px",                //enable when we use rounded tabs
+            }, 1000);
+            await addTransition(sectionOld, {   //story content to fade out
+                opacity: 0,
+            }, 200);
+            sectionOld.style.display = "none";
+            sectionNew.style.display = "block";
+            sectionNew.style.opacity = 0;
+            sectionNew.innerHTML = content;
+            setTimeout(() => {  //await was giving me a difficult time, so I just went with a timeout
+                addTransition(sectionNew, { //story content to fade in
+                    opacity: 1,
+                }, 500);
+            }, 300);
+            if (actorOld.id != actorNew.id) {
+                actorNew.classList.add("focus");
+                actorNew.classList.remove("regular");
+                actorOld.classList.add("regular");
+                actorOld.classList.remove("focus");
+            }
+            // Change the EMR Background Color to match the current Actor's color
+            const sty = getComputedStyle(document.documentElement).getPropertyValue("--abcStoryActor" + actorNew.id.substring(8));
+            updateStyleRule(":root", "--emrBackgroundColor", sty);
+        }
+
+        //Toggle open/close the sidePanel
+        toggleSidepanel = () => {
+            let expanded = document.getElementById("sidepanelOutside").getAttribute("expanded");
+            if (expanded === "false") expanded = false; // "false" != false
+            let expandedWidth = getComputedStyle(document.querySelector(":root")).getPropertyValue("--sidepanelExpandedWidth");
+            var fromSize, toSize;
+            if (expanded) {
+                fromSize = expandedWidth;
+                toSize = 0;
+                document.getElementById("sidepanelOutside").setAttribute("expanded", "false");
+            } else {
+                fromSize = 0;
+                toSize = expandedWidth;
+                document.getElementById("sidepanelOutside").setAttribute("expanded", "true");
+            }
+            sidepanelResize(fromSize, toSize, 20);
+            let circleLeft = (expanded) ? -6 : 5;
+            $('.circle').animate({
+                "margin-left": circleLeft
+            }, function () {
+                $('.fa-chevron-left').toggleClass('hide');
+                $('.fa-chevron-right').toggleClass('hide');
+            });
+        }
+
+
+        /*************** Remote Server Operations (previously AJAX) ***************/
+        //async/await fetch (i.e. Promise AJAX). apiPath = everything after the domain (e.g. Patient/123). callbackfn e.g.: function(data){console.log(data)}
+        //   verb is optional, default = GET. bodyJSON is optional (JSON formatted). headersObj is optional, e.g. {"Content-Type": "text/plain",}. optionsObj is optional, e.g. {mode: "cors",}
+        async function APICall(apiPath, callbackFn, verb, bodyJSON, headersObj, optionsObj) {
+            apiPath = apiReplaceVar(apiPath);
+            try {
+                if (!verb) verb = "GET";
+                if (!optionsObj) optionsObj = {};
+                let api = dataParams.baseURL + apiPath;
+                //headers
+                let fetchHeaders = new Headers(
+                    headersObj
+                );
+                if (dataParams.baseCredentials != "Og==") { fetchHeaders.append("Authorization", `Basic ${dataParams.baseCredentials}`) }   //"Og==" is base64 encoding of anonymous credentials
+                //options
+                optionsObj.method = verb;
+                if (bodyJSON) optionsObj.body = JSON.stringify(bodyJSON);
+                optionsObj.headers = fetchHeaders;
+                //update the flow window
+                APICallFlowUpdate(api, true, verb);
+                //fetch
+                let logID = Logger.addAPILog(api, verb, bodyJSON, headersObj, optionsObj);    //Log the API call
+                const source = await fetch(api, optionsObj);
+                const result = await source.json();
+                if (callbackFn !== undefined) callbackFn(result);
+                Logger.addAPIReturn(logID, result, source); //Log the API returned value
+                APICallFlowUpdate(api, false, verb);
+            } catch (err) {
+                console.log("err: ", err);
+            }
+        }
+
+        //Sub function of APICall
+        APICallFlowUpdate = (api, fetch = true, verb = "GET") => {
+            //Called by apiPath. This function renders the message(s) flowing betweent the client device and the server(s)
+            if (ApiFlow) {   //does the ApiFlow object exist? [Note that the name of the abcFlow object is expected to be ApiFlow]
+                //get the most specific (first part) of the subdomain
+                const urlParts = (api.match(/^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/));    //https://www.rfc-editor.org/rfc/rfc3986#appendix-B
+                const server = urlParts[4].substr(0, urlParts[4].indexOf("."));
+                //has this server already been rendered in the ApiFlow.grid?
+                let serverAlreadyRendered = -1;
+                let serversAr = ApiFlow.abcFlowDataParams.servers;
+                for (let i = 0; i < serversAr.length; i++) {
+                    if (serversAr[i].server == server) {
+                        serverAlreadyRendered = i;
+                        svgPath = serversAr[i].pathID;
+                        break;
+                    }
+                }
+                //if the server has not already been rendered to the grid, then render it, and add the SVG path connecting it to the clientDevice
+                if (serverAlreadyRendered == -1) {
+                    ApiFlow.gridAdd("abcFlowGrid", "cell", "auto", `<img id="server1" src="assets/img/server.png" style="width: 50px;"><span style="position:relative; top:30px; left:-50px;">${server}</span>`, false, 1);
+                    svgPath = ApiFlow.flowCreatePath('clientDevice', 'server1', 'message packet', false);
+                    ApiFlow.flowGridRedraw();
+                    serversAr[serversAr.length] = { "server": server, "pathID": svgPath, "actors": [] };
+                }
+                //has the actor (representing the complete URI) already been added?
+                let actors = serversAr[(serverAlreadyRendered == -1 ? 0 : serverAlreadyRendered)].actors;
+                let actorAlreadyRendered = -1;
+                for (i = 0; i < actors.length; i++) {
+                    if (actors[i] == api) {
+                        actorAlreadyRendered = i;
+                        break;
+                    }
+                }
+                //if the actor has not yet been rendered, then render it
+                const actorNameBase = "abcFlowContainer_actor";
+                let actorNameIndex = svgPath + "_";
+                if (actorAlreadyRendered == -1) {
+                    actorNameIndex += actors.length;
+                    ApiFlow.upsertActor(svgPath, actorNameIndex, (Logger._apiCount !== undefined ? Logger._apiCount : verb), `verb${verb}`);
+                    actors[actors.length] = `${api}`;
+                } else {
+                    actorNameIndex += actorAlreadyRendered;
+                }
+                //animate the actor
+                setTimeout(() => {
+                    //Give the upsertActor function a chance to render, and it also looks cool that the actors are not on top of each other on the SVG path
+                    ApiFlow.flowAnimate(actorNameBase + actorNameIndex, fetch, animDurationMs = "1000");
+                }, 100);
+                //increment the apiCounter
+                if (Logger._apiCount !== undefined) Logger._apiCount++;
+            };
+        }
+
+
+        /*************** Generic utility functions ***************/
+        //Populate list of FHIR servers
+        addItemToSelect = (selectID, itemsAr) => {
+            let sel = document.getElementById(selectID);
+            itemsAr.forEach(element => {
+                opt = document.createElement("option");
+                opt.text = element;
+                sel.add(opt);
+            });
+        };
+        (() => {
+            setTimeout(() => {  //Can't add options to the select until the HTML (below) has been rendered
+                let t = [];
+                for (const el of dataParams.servers) { t.push(el.server) }
+                addItemToSelect("FHIRServer", t);
+            }, 100);
+        })()
+
+        //Add an element (default = <div>) to the document (default append to = <body>)
+        addHTMLel = (elID, className, appendTo = document.body, elType = "div") => {
+            const el = document.createElement(elType);
+            el.setAttribute('id', elID);
+            if (className) el.setAttribute('class', className);
+            appendTo.append(el);
+            return document.getElementById(elID);
+        }
+
+        //Convert a number (0-indexed) month number to the named month. Optionally include the number of characters in the returned month name
+        monthExpand = (monthIndex, chars) => {
+            const ar = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            let mo = ar[monthIndex];
+            if (chars) mo = mo.substring(0, chars);
+            return mo;
+        }
+
+        //Window resize actions
+        winResizeEvent = () => {
+            document.getElementById("abcLogger").style.height = window.innerHeight + "px";
+            updateStyleRule(":root", "--viewportWidth", window.innerWidth + "px");
+        }
+
+        //Pseudo-animate resizing of the side panel. (Change a CSS variable over time to cause the animation; easier than animating all the elements based on this variable)
+        sidepanelResize = (sizeFrom, sizeTo, steps, curStep = 0) => {
+            sizeFrom = parseInt(sizeFrom);
+            sizeTo = parseInt(sizeTo);
+            updateStyleRule(":root", "--sidepanelWidth", `${(sizeTo - sizeFrom) / steps * curStep + sizeFrom}px`);
+            if (curStep < steps) {
+                setTimeout(() => {
+                    sidepanelResize(sizeFrom, sizeTo, steps, ++curStep);
+                }, 10);
+            }
+        }
+
+        //Add a popup (mouseover) event, and the corresponding mouseout
+        abcAddPopup = (elName, msg) => {
+            const elID = document.getElementById(elName);
+            elID.addEventListener("mouseover", () => { abcFooterMsg(msg) });
+            elID.addEventListener("mouseout", () => { abcFooterMsg("") });
+        }
+
+        //Update the message in the footer. If cls is not specified, the popup class will be used.
+        abcFooterMsg = (msg, cls) => {
+            const ftr = document.getElementById("mockEMRFooter");
+            if (msg) {  //Store the current footer message (to replace the popup msg)
+                dataParams.footerMsg = ftr.innerHTML;
+                cls = cls ? cls : "popup";
+                msg = `<span class="${cls}">${msg}</span>`;
+            } else {
+                msg = dataParams.footerMsg;
+            }
+            ftr.innerHTML = msg;
+        }
+
+        //Page-loaded functions
+        window.addEventListener('load', function () {
+            Logger = new abcLogger();
+            Logger.addTextLog("<img src='assets/img/sdh200.png' height=24 style='vertical-align: middle;'>&nbsp;&nbsp; API Monitor", "heading1", false);
+            //Add container for abcFlow inside the API Monitor
+            Logger.addTextLog(`<div class="containerForAbcFlow"><div id="abcFlowContainer" class="abcFlowContainer"></div></div>`, " ", false);
+            //Construct the abcFlow object, then add a row, then a cell, then content (client device icon)
+            ApiFlow = new abcFlow("abcFlowContainer");
+            ApiFlow.gridAdd("abcFlowContainer", "row", "abcFlowGrid");
+            let temp = ApiFlow.gridAdd("abcFlowGrid");
+            document.getElementById(temp).innerHTML = '<img id="clientDevice" src="assets/img/clientdevices.png" style="width: 50px;"><span style="position:relative; top:30px; left:-39px;">(me)</span>';
+
+
+            changeServer();
+
+            $('.circle').click(function () {
+                toggleSidepanel();
+            });
+            winResizeEvent();
+
+            abcActorNext();     //Set the abcActor to the first story board
+
+            setTimeout(() => {  //Open the sidePanel by default when the page is loaded
+                toggleSidepanel();
+            }, 1500);
+
+            //Add popup alerts
+            abcAddPopup("flipCareButton", "Toggle between Demo Narration and API Monitor");
+            abcAddPopup("toggleSidePanelButton", "Toggle side panel visibility");
+
+        });
+
+        window.addEventListener('resize', function () {
+            winResizeEvent();
+        })
+
+    </script>
+</head>
+
+
+<body>
+
+    <div id="sidepanelOutside" class="sidepanelOutside">
+        <div id="sidepanelLeft" class="sidepanelLeft">
+            <div class="mockEMRContainer">
+                <!-- MockEMR Heading row -->
+                <div class="rowTitle">
+                    <span class="headingTitle2" style="margin-left: 10px;">
+                        </i> Demo <i class="fa fa-arrow-circle-right"></i> Hackathon <i class="fa fa-arrow-circle-right"></i>
+                    </span>
+                    <span class="alignRight">
+                        <span class="headingTitle">&nbsp;&nbsp;&nbsp;Mock EMR&nbsp;&nbsp;&nbsp;</span>
+                        <img src="assets/img/sdh200.png" height="40">
+                    </span>
+                </div>
+
+                <!-- MockEMR Main Body -->
+                <div class="rowBody">
+                    <div class="bodyRow">
+                        <!-- ********** START: Mock EMR Content ********** -->
+
+
+                        <select class="serverSelect" id="FHIRServer" onChange="fhirGridParams.baseURL=this.value; loadPatientsInit('')">
+                        </select>
+
+
+
+
+                        <!--************** The dropdown search box, Only one search field per page supported **************-->
+                        <!-- The search input field -->
+                        <label for="PatientSearch" class="bmd-label-floating">Patient:</label>
+                        <input type="text" class="form-control" id="PatientSearch" required onblur="setTimeout(() => {
+                            document.getElementById('abcFHIRGridContainer').style.visibility = 'hidden';
+                            document.getElementById('abcFHIRGridContainerLoading').style.visibility = 'hidden';
+                        }, 250);">
+                        <input type="hidden" value="" id="PatientSearchValue">
+                        <!-- The Dropdown Container, and the animation for server fetches -->
+                        <div id="abcFHIRGridContainer" style="visibility:hidden;"></div>
+                        <div id="abcFHIRGridContainerLoading" class="fadeInFadeOut" style="z-index: 999; visibility:hidden; background-color:rgb(0, 140, 255); height:3px;"></div>
+
+                        <script>
+                            var abcFHIRGrid;    //requires global scoping
+                            //************** Page Ready Functions **************
+                            $(document).ready(function () {
+                                //Construct the abcFHIRGridContainer
+                                abcFHIRGrid = new Tabulator("#abcFHIRGridContainer", {
+                                    autoColumns: true,
+                                    height: getParam(abcFHIRGridParams, abcFHIRGridParams.template, "height"),
+                                    layout: "fitDataStretch",
+                                    placeholder: "Fetching some data...",
+                                    columns: getParam(abcFHIRGridParams, abcFHIRGridParams.template, "cols"),
+                                });
+                                abcFHIRGridInstantiate();
+                            })
+                        </script>
+
+
+
+
+
+                        <!-- ********** END: Mock EMR Content ********** -->
+                    </div>
+                </div>
+
+                <!-- MockEMR Footer row -->
+                <div id="mockEMRFooter" class="rowFooter">Care Gaps Demo v1.1.6</div>
+            </div> <!-- END: MockEMR -->
+        </div>
+
+        <!-- Right-side panel. Includes story board and API monitor -->
+        <div id="sidepanelRight" class="sidepanelContainer">
+            <div class="abcCardContainer scene--card">
+                <div id="abcStoryCard" class="card">
+
+                    <!-- Front side of card -->
+                    <div class="cardFace cardFaceFront">
+                        <div id="abcActorContainer" class="abcActorContainer">
+                            <div style="display: flex; flex-flow: row nowrap;" class="abcActor">
+                                <div id="abcStoryProvider" class="regular provider"><i class="fa fa-stethoscope"></i> <span style="color: #000;">Provider</span></div>
+                                <div id="abcStoryPatient" class="regular patient"><i class="fa fa-user"></i> <span style="color: #000;">Patient</span></div>
+                                <div id="abcStoryAdmin" class="focus admin"><i class="fa-solid fa-hand-holding-medical"></i> <span style="color: #000;">Admin</span></div>
+                            </div>
+                            <div class="abcActor">
+                                <div class="storyMain" id="abcStoryMain">&nbsp;
+                                    <section id="abcStoryProviderMain" class="abcStorySection"></section>
+                                    <section id="abcStoryPatientMain" class="abcStorySection"></section>
+                                    <section id="abcStoryAdminMain" class="abcStorySection" style="display:block; opacity: 1"></section>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Back side of card -->
+                    <div class="cardFace cardFaceBack">
+                        <div id="abcLogger" class="abcAPIContainer"></div>
+                    </div>
+                </div>
+
+                <!-- Card flip button -->
+                <div class="flipButton" onclick="abcCardFlip('abcStoryCard')">
+                    <i id="flipCareButton" class="fa fa-repeat"></i>
+                </div>
+            </div>
+        </div>
+
+        <div id="toggleSidePanelButton" class="circle">
+            <i class="fa fa-chevron-left" aria-hidden="true"></i>
+            <i class="fa fa-chevron-right hide" aria-hidden="true"></i>
+        </div>
+    </div> <!-- END: Sidepanel -->
+
+</body>
+
+
+
+
+</html>
