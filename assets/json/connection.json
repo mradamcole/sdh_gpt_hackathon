@@ -1,0 +1,5 @@
+{
+    "serverUrl": "https://himssball.salessbx.smiledigitalhealth.com/fhir-request",
+    "clientId": "sand_man",
+    "scope": "cdr_all_user_authorities fhirUser launch online_access openid profile user/*.*"
+  }
