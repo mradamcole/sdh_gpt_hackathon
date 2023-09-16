@@ -78,10 +78,14 @@ document.querySelectorAll('input[name="observationPrompt"]').forEach(function(ch
 
 function submitData(role) {
     const selectedValue = document.getElementById('selectedValue').value;
+    const patientId = document.getElementById('patient-id').value;
     const patientData = {
         prompt: selectedValue,
         role: role
     };
+    if(patientId){
+        patientData['patientID'] = patientId;
+    }
 
     /* var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
