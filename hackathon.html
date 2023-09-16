@@ -229,6 +229,10 @@
         } */
     </style>
 
+    <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.min.js"></script>
+
+    <script src="assets/js/auth.js"></script>
+
     <script>
         /*************** Global Data Parameters ***************/
         let dataParams = {
@@ -869,5 +873,17 @@
 
 <!-- Generic functions -->
 <script type="text/javascript" src='assets/js/abcGeneric.js'></script>
+
+<script>
+    $(document).ready(function () {
+        // This will check whether the user has been authenticated to a Smile CDR server.
+        // If not, it will redirect to the connect page. See auth.js for details.
+        checkAuthentication({
+            callback: () => {
+                // Do any initial data loading from the Smile CDR here
+            },
+        });
+    });
+</script>
 
 </html>

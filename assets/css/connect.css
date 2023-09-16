@@ -1,0 +1,11 @@
+body {
+  background-color: #DADADA;
+  margin-top: 1rem;
+  margin-bottom: 4rem;
+  margin-left: 4rem;
+  margin-right: 4rem;
+}
+
+.statsTable th {
+  text-align: right;
+}

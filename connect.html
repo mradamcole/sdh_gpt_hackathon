@@ -1,0 +1,116 @@
+<html>
+    <head>
+        <title>Hackathon Sept2023 - Connect</title>
+
+        <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.js"></script>        
+        
+        <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.min.js"></script>
+
+        <script src="assets/js/auth.js"></script>
+        <link rel="stylesheet" href="/assets/css/connect.css">
+
+        <script>
+            function getConnectionInfo() {
+                return fetch('/assets/json/connection.json')
+                    .then((response) => response.json())
+            }
+
+            function populateConnectionInfo(connectionInfo) {
+                $('#serverUrl').val(connectionInfo.serverUrl);
+                $('#clientId').val(connectionInfo.clientId);
+                $('#scope').val(connectionInfo.scope);
+            }
+
+            function connect() {
+                const connectionInfo = {
+                    serverUrl: $('#serverUrl').val(),
+                    clientId: $('#clientId').val(),
+                    scope: $('#scope').val(),
+                };
+
+                authorize({ connectionInfo, redirectPath: '/hackathon.html' })
+                    .catch((err) => {
+                        $('#error').text('Could not connect');
+                        $('#errorDescription').text(err.toString());
+                        $('#errorBox').show();                                        
+                    });
+            }
+
+            $(document).ready(function () {
+
+                // Here we populate the connection fields with a sample connection.
+                // Alternatively, one could make a list of possible connections available, e.g., via a dropdown.
+                getConnectionInfo().then((connectionInfo) => populateConnectionInfo(connectionInfo));
+
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('error') || urlParams.has('error_description')) {
+                    $('#error').text(urlParams.get('error'));
+                    $('#errorDescription').text(urlParams.get('error_description'));
+                    $('#errorBox').show();                                        
+                } else {
+                    $('#errorBox').hide();
+                }
+            });
+
+        </script>
+
+        <style type="text/css">            
+            body > .grid {
+                height: 100%;
+            }
+                        
+            .column {
+                max-width: 450px;
+            }
+        </style>
+    
+    </head>
+
+    <body>
+        <div class="ui middle aligned center aligned grid">
+            <div class="column">
+                <img src="assets/img/sdh200.png" class="image">
+                <h2 class="ui teal header">
+                    <div class="content">
+                        Connect to a FHIR Server
+                    </div>
+                </h2>
+                <form class="ui large form">
+                    <div class="ui stacked segment">
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="fire icon"></i>
+                                <input type="text" name="serverUrl" id="serverUrl" placeholder="Server URL">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="user icon"></i>
+                                <input type="text" name="clientId" id="clientId" placeholder="Client ID">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="binoculars icon"></i>
+                                <input type="text" name="scope" id="scope" placeholder="Scope">
+                            </div>
+                        </div>
+                        <div class="ui fluid large teal button" onClick="connect()">Connect</div>
+                    </div>
+          
+                    <div class="ui error message"></div>
+                    
+                    <div id="errorBox" class="ui negative icon message">
+                        <i class="exclamation circle icon"></i>
+                        <div class="content">
+                            <div class="header" id="error"></div>                            
+                            <p id="errorDescription"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

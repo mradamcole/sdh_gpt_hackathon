@@ -1,0 +1,37 @@
+<html>
+
+<head>
+    <title>Hackathon Sept2023 - Callback</title>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js"
+        integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.min.js"></script>
+
+    <script src="assets/js/auth.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            checkAuthentication({
+                callback: () => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (!urlParams.has('launch')) {
+                        window.location.assign('hackathon.html');
+                        return;
+                    }
+
+                    const launch = urlParams.get('launch');
+                    // Could use launch param for additional launch context, etc.
+
+                    window.location.assign('hackathon.html');
+                },
+            });
+        });
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>

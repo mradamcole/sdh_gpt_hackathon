@@ -6,19 +6,7 @@ document.getElementById('search-btn').addEventListener('click', function() {
         return;
     }
 
-    const xhr = new XMLHttpRequest();
-    const url = `https://himssball.salessbx.smiledigitalhealth.com/fhir-request/Patient/${patientId}`;
-
-    xhr.open('GET', url, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=');
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            const patientData = JSON.parse(xhr.responseText);
-            displayPatientInfo(patientData);
-        }
-    };
-    xhr.send();
+    window.fhirClient.request(`Patient/${patientId}`).then((patient) => displayPatientInfo(patient));
 });
 
 function displayPatientInfo(patientData) {
@@ -114,7 +102,8 @@ function submitData(role) {
     .catch(error => console.log('error', error)); */
 
     // Make the REST API call
-    fetch('https://himssball.salessbx.smiledigitalhealth.com/smile-ai/prompt', {
+    const fhirOrigin = getFhirClientOrigin();
+    fetch(`${fhirOrigin}/smile-ai/prompt`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

@@ -1,0 +1,99 @@
+<html>
+
+<head>
+    <title>Hackathon Sept2023 - Launch</title>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js"
+        integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.min.js"></script>
+
+    <script src="assets/js/auth.js"></script>
+    <link rel="stylesheet" href="/assets/css/connect.css">
+
+    <script>
+        function getConnectionInfo() {
+            return fetch('/assets/json/connection.json')
+                .then((response) => response.json())
+        }
+
+        function connect(connectionInfo) {
+            const callbackParams = new URLSearchParams();
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('launch')) {
+                callbackParams.set('launch', urlParams.get('launch'));
+            }
+
+            const redirectPath = `/callback.html${callbackParams.size ? `?${callbackParams.toString()}` : ''}`;
+
+            checkAuthentication({
+                callback: () => window.location.assign(redirectPath),
+                onError: (err) => {
+                    authorize({
+                        connectionInfo,
+                        redirectPath,
+                    }).catch((err) => {
+                        $('#messageBox').attr('class', 'ui negative icon message');
+                        $('#messageBox i').attr('class', 'exclamation circle icon');
+                        $('#message').text('Error launching application');
+                        $('#messageDescription').text(err.toString());
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            getConnectionInfo().then((connectionInfo) => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const launchConnectionInfo = { ...connectionInfo };
+
+                if (urlParams.has('iss')) {
+                    launchConnectionInfo.serverUrl = urlParams.get('iss');
+                }
+
+                if (urlParams.has('launch')) {
+                    launchConnectionInfo.launch = urlParams.get('launch');
+                }
+
+                connect(launchConnectionInfo);
+            });
+        });
+
+    </script>
+
+    <style type="text/css">
+        body>.grid {
+            height: 100%;
+        }
+
+        .column {
+            max-width: 450px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="ui middle aligned center aligned grid">
+        <div class="column">
+            <img src="assets/images/sdh_logo.png" class="image">
+            <h2 class="ui teal header">
+                <div class="content">
+                    Hackathon Sept2023 Launch
+                </div>
+            </h2>
+
+            <div id="messageBox" class="ui icon message">
+                <i class="rocket icon"></i>
+                <div class="content">
+                    <div class="header" id="message">Launching application...</div>
+                    <p id="messageDescription"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
