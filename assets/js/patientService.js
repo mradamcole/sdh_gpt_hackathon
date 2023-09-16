@@ -12,7 +12,6 @@ document.getElementById('search-btn').addEventListener('click', function() {
     xhr.open('GET', url, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.setRequestHeader('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=');
-    xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const patientData = JSON.parse(xhr.responseText);
@@ -92,8 +91,7 @@ document.querySelectorAll('input[name="observationPrompt"]').forEach(function(ch
 function submitData() {
     const selectedValue = document.getElementById('selectedValue').value;
     const patientData = {
-        patient: "Patient",
-        value: selectedValue
+        prompt: "What is my patient ID"
     };
 
     /* var myHeaders = new Headers();
@@ -118,8 +116,7 @@ function submitData() {
     fetch('https://himssball.salessbx.smiledigitalhealth.com/smile-ai/prompt', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(patientData)
     })
