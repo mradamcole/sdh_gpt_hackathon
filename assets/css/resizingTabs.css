@@ -51,6 +51,7 @@
 .abcActorContainer .abcActor .abcStorySection {
     display: none;
     opacity: 0;
+    color: #000;
 }
 
 .abcActorContainer .abcActor .abcStoryContent {

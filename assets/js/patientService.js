@@ -88,10 +88,11 @@ document.querySelectorAll('input[name="observationPrompt"]').forEach(function(ch
 // ... existing functions ...
 
 
-function submitData() {
+function submitData(role) {
     const selectedValue = document.getElementById('selectedValue').value;
     const patientData = {
-        prompt: "What is my patient ID"
+        prompt: selectedValue,
+        role: role
     };
 
     /* var myHeaders = new Headers();

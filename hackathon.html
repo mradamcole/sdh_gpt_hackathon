@@ -113,8 +113,8 @@
         .mockEMRContainer .rowBody {
             flex: 1;
             /* overflow-y: auto; */
-            overflow-y: hidden;
-            overflow-x: hidden;
+            //overflow-y: hidden;
+            //overflow-x: hidden;
             margin: 5px 5px 0px 5px;
         }
 
@@ -348,6 +348,27 @@
             }
             abcActorStage++;
             abcActorFocus("abcStory" + abcActorActor, s);
+        }
+
+        function setProviderRole(){
+            console.log('Setting role to Provider');
+            abcActorStage = 6;
+            abcActorActor = 'Provider';
+            abcActorFocus('abcStoryProvider', "You are now acting as a Provider. You have access to query multiple patients or a single patient.");
+        }
+
+        function setPatientRole(){
+            console.log('Setting role to Patient');
+            abcActorStage = 5;
+            abcActorActor = 'Patient';
+            abcActorFocus('abcStoryPatient', "You are now acting as a Patient. You have access to query only a single patient, and you will receive answers in a patient-friendly tone.");
+        }
+
+        function setAdminRole(){
+            console.log('Setting role to Admin');
+            abcActorStage = 0;
+            abcActorActor = 'Admin';
+            abcActorFocus('abcStoryAdmin', "You are now acting as an Admin. You have access to query across the full patient population.");
         }
 
         //Animate the transition between story boards, i.e. shift focus to another actor/tab {Provider, Patient, Admin} (within abcActor)
@@ -751,7 +772,7 @@
                                 </div>
 
                                 <button type="button" class="btn btn-primary my-3"
-                                    onclick="submitData()">Submit</button>
+                                    onclick="submitData(abcActorActor)">Submit</button>
                             </div>
                         </div>
 
@@ -775,12 +796,12 @@
                     <div class="cardFace cardFaceFront">
                         <div id="abcActorContainer" class="abcActorContainer">
                             <div style="display: flex; flex-flow: row nowrap;" class="abcActor">
-                                <div id="abcStoryProvider" class="regular provider"><i class="fa fa-stethoscope"></i>
+                                <div id="abcStoryProvider" class="regular provider" onclick="setProviderRole()"><i class="fa fa-stethoscope"></i>
                                     <span style="color: #000;">Provider</span>
                                 </div>
-                                <div id="abcStoryPatient" class="regular patient"><i class="fa fa-user"></i> <span
+                                <div id="abcStoryPatient" class="regular patient" onclick="setPatientRole()"><i class="fa fa-user"></i> <span
                                         style="color: #000;">Patient</span></div>
-                                <div id="abcStoryAdmin" class="focus admin"><i
+                                <div id="abcStoryAdmin" class="focus admin" onclick="setAdminRole()"><i
                                         class="fa-solid fa-hand-holding-medical"></i> <span
                                         style="color: #000;">Admin</span></div>
                             </div>
