@@ -70,6 +70,7 @@ function showResponse(data) {
 function showCalculation(data) {
     const calculationValue = document.getElementById('calculationValue');
     calculationValue.value = JSON.stringify(data, undefined, 4);
+    calculationValue.scrollTop = calculationValue.scrollHeight;
 }
 
 // ... existing functions ...
