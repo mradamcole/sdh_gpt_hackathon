@@ -67,6 +67,11 @@ function showResponse(data) {
     responseValue.innerText = `${data[data.length - 1].content}`;
 }
 
+function showCalculation(data) {
+    const calculationValue = document.getElementById('calculationValue');
+    calculationValue.value = JSON.stringify(data, undefined, 4);
+}
+
 // ... existing functions ...
 
 
@@ -118,11 +123,24 @@ function submitData(role) {
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Success:', data);
-        // Handle the response data as needed
-        submitButton.innerText = 'Submit';
-        submitButton.removeAttribute('disabled');
-        this.showResponse(data);
+        console.log('Success:', data);        
+        const intervalId = setInterval(() => {
+            fetch(`${fhirOrigin}/prompt/${data.prompt_id}`, {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then((data) => {
+                if (!data.busy) {
+                    clearInterval(intervalId);
+
+                    submitButton.innerText = 'Submit';
+                    submitButton.removeAttribute('disabled');
+                    this.showResponse(data.messages);
+                }
+
+                this.showCalculation(data.messages);
+            });
+        }, 2000);
     })
     .catch((error) => {
         submitButton.innerText = 'Submit';
