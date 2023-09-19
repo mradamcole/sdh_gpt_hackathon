@@ -87,9 +87,12 @@ function submitData(role) {
     resetResponse();
     const selectedValue = document.getElementById('selectedValue').value;
     const patientId = document.getElementById('PatientSearchValue').value;
+    const { state } = window.fhirClient;
+    const { access_token: accessToken } = state.tokenResponse;
     const patientData = {
         prompt: selectedValue,
-        role: role
+        role: role,
+        accessToken,
     };
     if(patientId){
         patientData['patientID'] = patientId;
@@ -123,8 +126,8 @@ function submitData(role) {
         body: JSON.stringify(patientData)
     })
     .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data);        
+    .then((data) => {
+        console.log('Success:', data);
         const intervalId = setInterval(() => {
             fetch(`${fhirOrigin}/smile-ai/prompt/${data.prompt_id}`, {
                 method: 'GET',

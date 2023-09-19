@@ -30,7 +30,7 @@
                     scope: $('#scope').val(),
                 };
 
-                authorize({ connectionInfo, redirectPath: '/hackathon.html' })
+                authorize({ connectionInfo, redirectPath: '/callback.html' })
                     .catch((err) => {
                         $('#error').text('Could not connect');
                         $('#errorDescription').text(err.toString());
