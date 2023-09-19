@@ -126,7 +126,7 @@ function submitData(role) {
     .then(data => {
         console.log('Success:', data);        
         const intervalId = setInterval(() => {
-            fetch(`${fhirOrigin}/prompt/${data.prompt_id}`, {
+            fetch(`${fhirOrigin}/smile-ai/prompt/${data.prompt_id}`, {
                 method: 'GET',
             })
             .then(response => response.json())
