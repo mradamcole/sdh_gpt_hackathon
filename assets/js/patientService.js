@@ -62,9 +62,38 @@ document.querySelectorAll('input[name="observationPrompt"]').forEach(function(ch
     });
 });
 
-function showResponse(data) {
+function getAiBaseUrl() {
+    const fhirOrigin = getFhirClientOrigin();
+
+    return `${fhirOrigin}/smile-ai`;
+}
+
+function showResponse({ messages,  promptId }) {
     const responseValue = document.getElementById('responseValue');
-    responseValue.innerText = `${data[data.length - 1].content}`;
+    responseValue.innerText = `${messages[messages.length - 1].content}`;
+
+    const IMG_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'tiff'];
+
+    const aiBaseUrl = getAiBaseUrl();
+
+    fetch(`${aiBaseUrl}/output/${promptId}`, {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then((filenames) => {
+        const responseResourcesDiv = $('#responseResources');
+
+        filenames.forEach((filename) => {
+            const filenameParts = filename.split('.');
+            const ext = (filenameParts.length ? filenameParts[filenameParts.length - 1] : '').toLowerCase();
+
+            if (IMG_EXTS.includes(ext)) {
+                const img = $(`<img src="${aiBaseUrl}/output/${promptId}/${filename}" />`);
+                
+                responseResourcesDiv.append(img);
+            }    
+        });
+    });    
 }
 
 function showCalculation(data) {
@@ -78,6 +107,7 @@ function showCalculation(data) {
 
 function resetResponse(){
     document.getElementById('responseValue').innerText = '';
+    $('#responseResources').empty();
 }
 
 function submitData(role) {
@@ -117,8 +147,9 @@ function submitData(role) {
     .catch(error => console.log('error', error)); */
 
     // Make the REST API call
-    const fhirOrigin = getFhirClientOrigin();
-    fetch(`${fhirOrigin}/smile-ai/prompt`, {
+    const aiBaseUrl = getAiBaseUrl();
+
+    fetch(`${aiBaseUrl}/prompt`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -129,20 +160,23 @@ function submitData(role) {
     .then((data) => {
         console.log('Success:', data);
         const intervalId = setInterval(() => {
-            fetch(`${fhirOrigin}/smile-ai/prompt/${data.prompt_id}`, {
+            fetch(`${aiBaseUrl}/prompt/${data.prompt_id}`, {
                 method: 'GET',
             })
             .then(response => response.json())
-            .then((data) => {
-                if (!data.busy) {
+            .then((pollData) => {
+                if (!pollData.busy) {
                     clearInterval(intervalId);
 
                     submitButton.innerText = 'Submit';
                     submitButton.removeAttribute('disabled');
-                    this.showResponse(data.messages);
+                    this.showResponse({
+                        messages: pollData.messages,
+                        promptId: data.prompt_id,
+                    });
                 }
 
-                this.showCalculation(data.messages);
+                this.showCalculation(pollData.messages);
             });
         }, 2000);
     })
