@@ -11,22 +11,25 @@
     <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.min.js"></script>
 
     <script src="assets/js/auth.js"></script>
-    <link rel="stylesheet" href="/assets/css/connect.css">
+    <link rel="stylesheet" href="assets/css/connect.css">
 
     <script>
         function getConnectionInfo() {
-            return fetch('/assets/json/connection.json')
+            return fetch('assets/json/connection.json')
                 .then((response) => response.json())
         }
 
         function connect(connectionInfo) {
+            const { pathname } = window.location;
+            const path = pathname.substring(0, pathname.lastIndexOf('/'));
+
             const callbackParams = new URLSearchParams();
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('launch')) {
                 callbackParams.set('launch', urlParams.get('launch'));
             }
 
-            const redirectPath = `/callback.html${callbackParams.size ? `?${callbackParams.toString()}` : ''}`;
+            const redirectPath = `${path}/callback.html${callbackParams.size ? `?${callbackParams.toString()}` : ''}`;
 
             checkAuthentication({
                 callback: () => window.location.assign(redirectPath),

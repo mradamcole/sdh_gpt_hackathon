@@ -9,11 +9,11 @@
         <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.min.js"></script>
 
         <script src="assets/js/auth.js"></script>
-        <link rel="stylesheet" href="/assets/css/connect.css">
+        <link rel="stylesheet" href="assets/css/connect.css">
 
         <script>
             function getConnectionInfo() {
-                return fetch('/assets/json/connection.json')
+                return fetch('assets/json/connection.json')
                     .then((response) => response.json())
             }
 
@@ -30,7 +30,10 @@
                     scope: $('#scope').val(),
                 };
 
-                authorize({ connectionInfo, redirectPath: '/callback.html' })
+                const { pathname } = window.location;
+                const path = pathname.substring(0, pathname.lastIndexOf('/'));
+
+                authorize({ connectionInfo, redirectPath: `${path}/callback.html` })
                     .catch((err) => {
                         $('#error').text('Could not connect');
                         $('#errorDescription').text(err.toString());

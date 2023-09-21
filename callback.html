@@ -15,16 +15,19 @@
 
             checkAuthentication({
                 callback: () => {
+                    const { pathname } = window.location;
+                    const path = pathname.substring(0, pathname.lastIndexOf('/'));
+
                     const urlParams = new URLSearchParams(window.location.search);
                     if (!urlParams.has('launch')) {
-                        window.location.assign('hackathon.html');
+                        window.location.assign(`${path}/hackathon.html`);
                         return;
                     }
 
                     const launch = urlParams.get('launch');
                     // Could use launch param for additional launch context, etc.
 
-                    window.location.assign('hackathon.html');
+                    window.location.assign(`${path}/hackathon.html`);
                 },
             });
         });

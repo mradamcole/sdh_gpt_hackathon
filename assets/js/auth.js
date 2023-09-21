@@ -21,6 +21,9 @@ function authorize({
 
 function checkAuthentication({ callback, onError }) {
     
+    const { pathname } = window.location;
+    const path = pathname.substring(0, pathname.lastIndexOf('/'));
+
     // This will check that the user is authenticated, and if so, will return a FHIR client.
     // Oddly, there are rare cases where a client is returned despite an invalid token. We handle this below.
     FHIR.oauth2.ready()
@@ -38,7 +41,7 @@ function checkAuthentication({ callback, onError }) {
                     loginUrlParams.append('error_description', err.toString());
                 }
                 
-                window.location.assign(`connect.html?${loginUrlParams.toString()}`);
+                window.location.assign(`${path}/connect.html?${loginUrlParams.toString()}`);
             };
 
             if (!client.state?.tokenResponse?.access_token) {
@@ -72,7 +75,7 @@ function checkAuthentication({ callback, onError }) {
                 .filter((param) => urlParams.has(param))
                 .forEach((param) => loginUrlParams.append(param, urlParams.get(param)));
 
-            window.location.assign(`connect.html${loginUrlParams.size ? `?${loginUrlParams.toString()}` : ''}`);
+            window.location.assign(`${path}/connect.html${loginUrlParams.size ? `?${loginUrlParams.toString()}` : ''}`);
         });
 }
 
@@ -90,6 +93,9 @@ function getFhirClientOrigin() {
 }
 
 function disconnect() {
+    const { pathname } = window.location;
+    const path = pathname.substring(0, pathname.lastIndexOf('/'));
+
     const { state = {} } = window.fhirClient || {};
     const { tokenUri } = state;
     const { access_token: accessToken } = state.tokenResponse || {};
@@ -111,7 +117,7 @@ function disconnect() {
             sessionStorage.clear();
             
             // We have successfully had the token revoked, so go back to the connect page
-            window.location.assign('connect.html');
+            window.location.assign(`${path}/connect.html`);
         })
         .catch((err) => console.log(`Error disconnecting: ${err.toString()}`));
 }
