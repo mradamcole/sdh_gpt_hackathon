@@ -1,3 +1,10 @@
+function getAccessToken() {
+    const { state } = window.fhirClient;
+    const { access_token } = state.tokenResponse;
+
+    return access_token;
+}
+
 function displayPatientInfo(patientData) {
     try {
         const name = patientData.name && patientData.name[0] ? `${patientData.name[0].given.join(' ')} ${patientData.name[0].family}` : 'N/A';
@@ -76,13 +83,23 @@ function showResponse({ messages,  promptId }) {
 
     const aiBaseUrl = getAiBaseUrl();
 
+    const responseResourcesDiv = $('#responseResources');
+    const aLabel = $(`<span>URL: </span>`);
+    responseResourcesDiv.append(aLabel);
+
+    const url = `${window.location.origin}${window.location.pathname}?id=${promptId}`;
+    const aElement = $(`<a href="${url}">${url}</a>`);
+    responseResourcesDiv.append(aElement);
+
     fetch(`${aiBaseUrl}/output/${promptId}`, {
-        method: 'GET',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ accessToken: getAccessToken() }),
     })
     .then(response => response.json())
     .then((filenames) => {
-        const responseResourcesDiv = $('#responseResources');
-
         filenames.forEach((filename) => {
             const filenameParts = filename.split('.');
             const ext = (filenameParts.length ? filenameParts[filenameParts.length - 1] : '').toLowerCase();
@@ -110,20 +127,66 @@ function resetResponse(){
     $('#responseResources').empty();
 }
 
+function pollMessages(id) {
+    const resetSubmitButton = () => {
+        submitButton.innerText = 'Submit';
+        submitButton.removeAttribute('disabled');
+    };
+
+    const aiBaseUrl = getAiBaseUrl();
+    const accessToken = getAccessToken();
+
+    const intervalId = setInterval(() => {
+        fetch(`${aiBaseUrl}/prompt/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ accessToken }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                clearInterval(intervalId);
+                resetSubmitButton();
+
+                return null;
+            }
+
+            return response.json();
+        })
+        .then((data) => {
+            if (!data) return;
+
+            if (data.busy) {
+                this.showCalculation(data.messages);
+            } else {
+                clearInterval(intervalId);
+                resetSubmitButton();
+
+                this.showResponse({
+                    messages: data.messages,
+                    promptId: id,
+                });
+            }
+        });
+    }, 2000);
+}
+
 function submitData(role) {
-    var submitButton = document.getElementById('submitButton');
+    const submitButton = document.getElementById('submitButton');
     submitButton.innerText = 'Loading...';
     submitButton.setAttribute('disabled', 'disabled');
     resetResponse();
+
     const selectedValue = document.getElementById('selectedValue').value;
     const patientId = document.getElementById('PatientSearchValue').value;
-    const { state } = window.fhirClient;
-    const { access_token: accessToken } = state.tokenResponse;
+    const accessToken = getAccessToken();
     const patientData = {
         prompt: selectedValue,
         role: role,
         accessToken,
     };
+
     if(patientId){
         patientData['patientID'] = patientId;
     }
@@ -157,32 +220,44 @@ function submitData(role) {
         body: JSON.stringify(patientData)
     })
     .then(response => response.json())
-    .then((data) => {
-        console.log('Success:', data);
-        const intervalId = setInterval(() => {
-            fetch(`${aiBaseUrl}/prompt/${data.prompt_id}`, {
-                method: 'GET',
-            })
-            .then(response => response.json())
-            .then((pollData) => {
-                if (!pollData.busy) {
-                    clearInterval(intervalId);
-
-                    submitButton.innerText = 'Submit';
-                    submitButton.removeAttribute('disabled');
-                    this.showResponse({
-                        messages: pollData.messages,
-                        promptId: data.prompt_id,
-                    });
-                }
-
-                this.showCalculation(pollData.messages);
-            });
-        }, 2000);
-    })
+    .then((data) => pollMessages(data.prompt_id))
     .catch((error) => {
         submitButton.innerText = 'Submit';
         submitButton.removeAttribute('disabled');
         console.error('Error:', error);
+    });
+}
+
+function loadExistingPrompt(id) {
+    // First, see if messages are already saved for this prompt
+    fetch(`${getAiBaseUrl()}/output/${id}/data.json`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ accessToken: getAccessToken() }),
+    })
+    .then((response) => {
+        if (!response.ok) {
+            // Otherwise, it might be in progress, so poll
+            pollMessages(id);
+
+            return null;
+        }
+
+        return response.json()
+    })
+    .then((data) => {
+        if (!data) return;
+
+        const { patientID } = data.request;
+        if (patientID) {
+            window.fhirClient.request(`Patient/${patientID}`).then((patient) => displayPatientInfo(patient));
+        }
+
+        $('#selectedValue').text(data.request.prompt);
+
+        showCalculation(data.messages);
+        showResponse({ messages: data.messages, promptId: id });
     });
 }

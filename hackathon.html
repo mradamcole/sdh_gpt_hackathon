@@ -993,7 +993,13 @@
         // If not, it will redirect to the connect page. See auth.js for details.
         checkAuthentication({
             callback: () => {
-                // Do any initial data loading from the Smile CDR here
+                const urlParams = new URLSearchParams(window.location.search);
+
+                if (urlParams.has('id')) {
+                    const id = urlParams.get('id');
+                    
+                    loadExistingPrompt(id);
+                }
             },
         });
     });
