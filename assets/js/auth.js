@@ -24,6 +24,8 @@ function checkAuthentication({ callback, onError }) {
     const { pathname } = window.location;
     const path = pathname.substring(0, pathname.lastIndexOf('/'));
 
+    const urlParams = new URLSearchParams(window.location.search);
+
     // This will check that the user is authenticated, and if so, will return a FHIR client.
     // Oddly, there are rare cases where a client is returned despite an invalid token. We handle this below.
     FHIR.oauth2.ready()
@@ -36,6 +38,10 @@ function checkAuthentication({ callback, onError }) {
                 }
 
                 const loginUrlParams = new URLSearchParams();
+                if (urlParams.has('id')) {
+                    loginUrlParams.append('id', urlParams.get('id'));
+                }
+
                 if (err.statusCode >= 500) {
                     loginUrlParams.append('error', 'Connection error');
                     loginUrlParams.append('error_description', err.toString());
@@ -67,14 +73,13 @@ function checkAuthentication({ callback, onError }) {
 
             // If there is an authentication error, the FHIR server will redirect back with error parameters set.
             // We will pass these back to the connect page for display.
-            const urlParams = new URLSearchParams(window.location.search);
-            const paramsToPass = ['error', 'error_description'];
+            const paramsToPass = ['error', 'error_description', 'id'];
             const loginUrlParams = new URLSearchParams();
             
             paramsToPass
                 .filter((param) => urlParams.has(param))
                 .forEach((param) => loginUrlParams.append(param, urlParams.get(param)));
-
+            
             window.location.assign(`${path}/connect.html${loginUrlParams.size ? `?${loginUrlParams.toString()}` : ''}`);
         });
 }

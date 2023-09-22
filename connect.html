@@ -33,7 +33,14 @@
                 const { pathname } = window.location;
                 const path = pathname.substring(0, pathname.lastIndexOf('/'));
 
-                authorize({ connectionInfo, redirectPath: `${path}/callback.html` })
+                const urlParams = new URLSearchParams(window.location.search);
+                let redirectPath = `${path}/callback.html`;
+                if (urlParams.has('id')) {
+                    const id = urlParams.get('id');
+                    redirectPath = `${redirectPath}?launch=${id}`;
+                }
+                
+                authorize({ connectionInfo, redirectPath })
                     .catch((err) => {
                         $('#error').text('Could not connect');
                         $('#errorDescription').text(err.toString());

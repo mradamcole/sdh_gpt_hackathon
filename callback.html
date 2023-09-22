@@ -18,16 +18,15 @@
                     const { pathname } = window.location;
                     const path = pathname.substring(0, pathname.lastIndexOf('/'));
 
+                    let redirectUrl = `${path}/hackathon.html`;
+                    
                     const urlParams = new URLSearchParams(window.location.search);
-                    if (!urlParams.has('launch')) {
-                        window.location.assign(`${path}/hackathon.html`);
-                        return;
+                    if (urlParams.has('launch')) {
+                        const launch = urlParams.get('launch');
+                        redirectUrl = `${redirectUrl}?id=${launch}`;
                     }
 
-                    const launch = urlParams.get('launch');
-                    // Could use launch param for additional launch context, etc.
-
-                    window.location.assign(`${path}/hackathon.html`);
+                    window.location.assign(redirectUrl);
                 },
             });
         });
