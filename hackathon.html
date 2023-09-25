@@ -327,7 +327,7 @@
         function setProviderRole() {
             abcActorActor = 'Provider';
             abcActorFocus('abcStory' + abcActorActor, `<div class="abcStoryContent ${abcActorActor}">
-                <p>You are now acting in the role of a <b>Provider</b>. You have access to query <b>multiple patients or a single patient</b>. (Security is enforced by Smile CDR)</p>
+                <p>You are now acting in the role of a <b>Provider</b>. You have access to query <b>your patients</b>. (Security is enforced by Smile CDR)</p>
                 <p>Write your own query, or select from one of the following starter queries:</p>
                 <div id="queryTemplatePrompts${abcActorActor}">a</div>
             </div>`);
@@ -665,13 +665,6 @@
                             <!-- <div id="patientDetails" class="p-3 mb-2 mx-5"> -->
 
 
-
-
-                            <div class="input-group py-3">
-                                <span class="input-group-text">Your query</span>
-                                <textarea id="selectedValue" class="form-control" aria-label="With textarea"></textarea>
-                            </div>
-
                             <button class="btn btn-primary" type="button" id="submitButton" onclick="submitData(abcActorActor)">
                                 <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                                 Submit
@@ -690,14 +683,23 @@
                             <!-- </div> -->
                         </div>
 
+                        <!-- <div style="position: fixed; top: calc(100vh - 70px); border: 3px solid #804;">test2</div> -->
 
 
                         <!-- ********** END: Mock EMR Content ********** -->
                     </div>
                 </div>
 
+                <!-- Input box (Ask Smile) -->
+                <div style="border-radius: 5px; border: 1px solid #ced4da; margin: 0px 10px 10px 10px;">
+                    <div>
+                        <span class="input-group-text" style="border-radius: 0%;"><i class="fa-solid fa-brain"></i>&nbsp;&nbsp;Ask Smile:</span>
+                        <textarea id="selectedValue" class="form-control" style="height: 100px; border-radius: 0%;" aria-label="With textarea"></textarea>
+                    </div>
+                </div>
+
                 <!-- MockEMR Footer row -->
-                <div id="mockEMRFooter" class="rowFooter">Hackathon Sept2023</div>
+                <div id="mockEMRFooter" class="rowFooter">Hackathon Sept2023, v0.2.1</div>
             </div> <!-- END: MockEMR -->
         </div>
 
@@ -758,12 +760,12 @@
 
                 if (urlParams.has('id')) {
                     const id = urlParams.get('id');
-                    
+
                     loadExistingPrompt(id);
                 }
             },
-        }); 
-        
+        });
+
     });
 </script>
 

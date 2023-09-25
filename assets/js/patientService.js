@@ -14,18 +14,18 @@ function displayPatientInfo(patientData) {
         const gender = patientData.gender || 'N/A';
 
         // I couldn't find the email in the provided data, so I'm leaving it out for now.
-        
+
         const infoDiv = document.getElementById('patient-info');
-        infoDiv.innerHTML = `
-            <p>Name: ${name}</p>
-            <p>DOB: ${dob}</p>
-            <p>Address: ${address}</p>
-            <p>Phone: ${phone}</p>
-            <p>Gender: ${gender}</p>
-        `;
+        infoDiv.innerHTML = `<ol>
+            <b>Name:</b> ${name}</br>
+            <b>DOB:</b> ${dob}</br>
+            <b>Address:</b> ${address}</br>
+            <b>Phone:</b> ${phone}</br>
+            <b>Gender:</b> ${gender}</br>
+        </ol>`;
 
         infoDiv.classList.remove('hidden');
-    } catch(error) {
+    } catch (error) {
         console.error("Error in displayPatientInfo:", error); // Log any errors in the function
     }
 }
@@ -59,10 +59,10 @@ function showPrompts(value) {
     }
 }
 
-document.querySelectorAll('input[name="observationPrompt"]').forEach(function(checkbox) {
-    checkbox.addEventListener('change', function() {
+document.querySelectorAll('input[name="observationPrompt"]').forEach(function (checkbox) {
+    checkbox.addEventListener('change', function () {
         const selectedPrompts = [];
-        document.querySelectorAll('input[name="observationPrompt"]:checked').forEach(function(checkedBox) {
+        document.querySelectorAll('input[name="observationPrompt"]:checked').forEach(function (checkedBox) {
             selectedPrompts.push(checkedBox.value);
         });
         document.getElementById('selectedValue').value = `Patient > Observations > ${selectedPrompts.join(', ')}`;
@@ -75,7 +75,7 @@ function getAiBaseUrl() {
     return `${fhirOrigin}/smile-ai`;
 }
 
-function showResponse({ messages,  promptId }) {
+function showResponse({ messages, promptId }) {
     const responseValue = document.getElementById('responseValue');
     responseValue.innerText = `${messages[messages.length - 1].content}`;
 
@@ -98,19 +98,19 @@ function showResponse({ messages,  promptId }) {
         },
         body: JSON.stringify({ accessToken: getAccessToken() }),
     })
-    .then(response => response.json())
-    .then((filenames) => {
-        filenames.forEach((filename) => {
-            const filenameParts = filename.split('.');
-            const ext = (filenameParts.length ? filenameParts[filenameParts.length - 1] : '').toLowerCase();
+        .then(response => response.json())
+        .then((filenames) => {
+            filenames.forEach((filename) => {
+                const filenameParts = filename.split('.');
+                const ext = (filenameParts.length ? filenameParts[filenameParts.length - 1] : '').toLowerCase();
 
-            if (IMG_EXTS.includes(ext)) {
-                const img = $(`<img src="${aiBaseUrl}/output/${promptId}/${filename}" />`);
-                
-                responseResourcesDiv.append(img);
-            }    
+                if (IMG_EXTS.includes(ext)) {
+                    const img = $(`<img src="${aiBaseUrl}/output/${promptId}/${filename}" />`);
+
+                    responseResourcesDiv.append(img);
+                }
+            });
         });
-    });    
 }
 
 function showCalculation(data) {
@@ -122,7 +122,7 @@ function showCalculation(data) {
 // ... existing functions ...
 
 
-function resetResponse(){
+function resetResponse() {
     document.getElementById('responseValue').innerText = '';
     $('#responseResources').empty();
 }
@@ -144,31 +144,31 @@ function pollMessages(id) {
             },
             body: JSON.stringify({ accessToken }),
         })
-        .then(response => {
-            if (!response.ok) {
-                clearInterval(intervalId);
-                resetSubmitButton();
+            .then(response => {
+                if (!response.ok) {
+                    clearInterval(intervalId);
+                    resetSubmitButton();
 
-                return null;
-            }
+                    return null;
+                }
 
-            return response.json();
-        })
-        .then((data) => {
-            if (!data) return;
+                return response.json();
+            })
+            .then((data) => {
+                if (!data) return;
 
-            if (data.busy) {
-                this.showCalculation(data.messages);
-            } else {
-                clearInterval(intervalId);
-                resetSubmitButton();
+                if (data.busy) {
+                    this.showCalculation(data.messages);
+                } else {
+                    clearInterval(intervalId);
+                    resetSubmitButton();
 
-                this.showResponse({
-                    messages: data.messages,
-                    promptId: id,
-                });
-            }
-        });
+                    this.showResponse({
+                        messages: data.messages,
+                        promptId: id,
+                    });
+                }
+            });
     }, 2000);
 }
 
@@ -179,7 +179,7 @@ function submitData(role) {
     resetResponse();
 
     const selectedValue = document.getElementById('selectedValue').value;
-    const patientId = document.getElementById('PatientSearchValue').value;
+    const patientId = document.getElementById('PatientSearchValue') == null ? undefined : document.getElementById('PatientSearchValue').value;
     const accessToken = getAccessToken();
     const patientData = {
         prompt: selectedValue,
@@ -187,8 +187,8 @@ function submitData(role) {
         accessToken,
     };
 
-    if(patientId){
-        patientData['patientID'] = patientId;
+    if (patientId) {
+        patientData['patientID'] = (abcActorActor == "Patient") ? patientId : undefined; //PatientId is only relevant if the Patient tab has been selected
     }
 
     /* var myHeaders = new Headers();
@@ -219,13 +219,13 @@ function submitData(role) {
         },
         body: JSON.stringify(patientData)
     })
-    .then(response => response.json())
-    .then((data) => pollMessages(data.prompt_id))
-    .catch((error) => {
-        submitButton.innerText = 'Submit';
-        submitButton.removeAttribute('disabled');
-        console.error('Error:', error);
-    });
+        .then(response => response.json())
+        .then((data) => pollMessages(data.prompt_id))
+        .catch((error) => {
+            submitButton.innerText = 'Submit';
+            submitButton.removeAttribute('disabled');
+            console.error('Error:', error);
+        });
 }
 
 function loadExistingPrompt(id) {
@@ -237,27 +237,27 @@ function loadExistingPrompt(id) {
         },
         body: JSON.stringify({ accessToken: getAccessToken() }),
     })
-    .then((response) => {
-        if (!response.ok) {
-            // Otherwise, it might be in progress, so poll
-            pollMessages(id);
+        .then((response) => {
+            if (!response.ok) {
+                // Otherwise, it might be in progress, so poll
+                pollMessages(id);
 
-            return null;
-        }
+                return null;
+            }
 
-        return response.json()
-    })
-    .then((data) => {
-        if (!data) return;
+            return response.json()
+        })
+        .then((data) => {
+            if (!data) return;
 
-        const { patientID } = data.request;
-        if (patientID) {
-            window.fhirClient.request(`Patient/${patientID}`).then((patient) => displayPatientInfo(patient));
-        }
+            const { patientID } = data.request;
+            if (patientID) {
+                window.fhirClient.request(`Patient/${patientID}`).then((patient) => displayPatientInfo(patient));
+            }
 
-        $('#selectedValue').text(data.request.prompt);
+            $('#selectedValue').text(data.request.prompt);
 
-        showCalculation(data.messages);
-        showResponse({ messages: data.messages, promptId: id });
-    });
+            showCalculation(data.messages);
+            showResponse({ messages: data.messages, promptId: id });
+        });
 }
