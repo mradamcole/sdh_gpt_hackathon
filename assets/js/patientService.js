@@ -179,6 +179,7 @@ function submitData(role) {
     resetResponse();
 
     const selectedValue = document.getElementById('selectedValue').value;
+    // const patientId = document.getElementById('PatientSearchValue') == null ? undefined : document.getElementById('PatientSearchValue').value;
     const patientIdVar = $('#PatientSearchValue');
     const patientId = patientIdVar.length ? patientIdVar.val() : null;
     const accessToken = getAccessToken();
