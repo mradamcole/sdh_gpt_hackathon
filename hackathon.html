@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    
+
     <!-- Generic -->
     <link rel="stylesheet" href="assets/css/abcGeneric.css">
 
@@ -29,8 +29,8 @@
     <link rel="stylesheet" type="text/css" href="assets/css/sidepanelSplit.css">
 
     <!--  Bootstrap  -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
 
     <!--  JSON Viewer  -->
     <link rel="stylesheet" type="text/css" href="assets/css/jquery.json-viewer.css">
@@ -52,7 +52,7 @@
     <!--   Core JS Files   -->
     <script src="assets/js/patientService.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
-    
+
     <!--  Logger  -->
     <script type="text/javascript" src="assets/js/logger.js"></script>
 
@@ -71,9 +71,15 @@
     <!-- Tabulator (fhirGrid) -->
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.4.3/dist/js/tabulator.min.js"></script>
 
-    <!-- FHIRPath (dependency of fhirGrid)-->
-    <script type="text/javascript" src="assets/js/fhirpath.min.js"></script>
+    <!-- FHIRPath (dependency of fhirGrid) -->
+    <!-- <script type="text/javascript" src="assets/js/fhirpath.min.js"></script> -->
     <script type="text/javascript" src="assets/js/fhirpath.r4.min.js"></script>
+
+    <!-- JS FHIR client -->
+    <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.min.js"></script>
+
+    <!-- SoF Authentication -->
+    <script src="assets/js/auth.js"></script>
 
     <style>
         :root {
@@ -147,8 +153,8 @@
         .mockEMRContainer .rowBody {
             flex: 1;
             /* overflow-y: auto; */
-            //overflow-y: hidden;
-            //overflow-x: hidden;
+            overflow-y: hidden;
+            overflow-x: hidden;
             margin: 5px 5px 0px 5px;
         }
 
@@ -263,59 +269,24 @@
         } */
     </style>
 
-    <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.min.js"></script>
-
-    <script src="assets/js/auth.js"></script>
-
     <script>
         /*************** Global Data Parameters ***************/
-        let dataParams = {
-            servers: [{ //credentials: fill in if you wish (obviously INSECURE!!!), leave blank for anonymous / to be prompted in webGUI
-                "server": "http://localhost:8000/",
-                un: "admin",
-                pw: "password"
-            }, {
-                "server": "https://hapi.fhir.org/baseR4/",
-                un: "",
-                pw: ""
-            }, {
-                "server": "https://try.smilecdr.com/baseR4/",
-                un: "",
-                pw: ""
-            }, {
-                "server": "https://himssdqm.salessbx.smiledigitalhealth.com/fhir/",
-                un: "",
-                pw: ""
-            }, {
-                "server": "https://himssball.salessbx.smiledigitalhealth.com/smile-ai/prompt",
-                un: "",
-                pw: ""
-            }],
-            baseURL: "",
-            baseCredentials: "",
-        };
-        dataParams.baseURL = dataParams.servers[4].server;
-
-        //Get the parameter value from the subsection first; otherwise get it from the root
-        getParam = (paramList, section, param) => {
-            return paramList[section][param] || paramList[param]
-        }
-
-
-
+        let dataParams = {};
 
         /*************** Mock EMR functions ***************/
         var Logger; //Global variable for the API Monitor
+        let abcActorStage = 1;  //current actor story; see abcActorNext()
+        let abcActorActor;      //current actor; see abcActorNext()
 
         //Look for a variable and replace it with dataParams.variable e.g.: url/Patient/{ptID} ==> url/Patient/<dataParams.ptID>
         //TODO: I cheated and did this quick and dirty, hardcoded for ptID. Make this work for any variable; and use getParam so that it will search multi-levels within dataParams.
         // **************************************************************** I'm pretty sure we can delete this for the Hackathon - I think it is specific to DQM
-        apiReplaceVar = (api) => {
-            if (api.search("{") >= 0) {
-                api = api.replace(/{ptID}/g, dataParams.curCareGap.ptID);
-            }
-            return api;
-        }
+        // apiReplaceVar = (api) => {
+        //     if (api.search("{") >= 0) {
+        //         api = api.replace(/{ptID}/g, dataParams.curCareGap.ptID);
+        //     }
+        //     return api;
+        // }
 
 
         //Flip the card with the given cardID        
@@ -323,160 +294,97 @@
             document.getElementById(cardID).classList.toggle('is-flipped');
         }
 
-        //Define the contents for the story board (within abcActor)
-        let abcActorStage = 1;  //current actor story; see abcActorNext()
-        let abcActorActor;      //current actor; see abcActorNext()
-        abcActorNext = () => {
-            switch (abcActorStage) {
-                case 0:
-                    abcActorActor = "Admin"
-                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
-                        <p>Loading...</p>
-                        </div>`;
-                    break;
-                case 1:
-                    abcActorActor = "Admin";
-                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
-                        <p><i>As we progress through this demo we'll change actors between the Provider, Patient, and the Office Administrator. We'll let you know who the current actor is right here.</i></p>
-                        <p><i>Note: You can click the <i class="fa fa-repeat"></i> icon in the top-right to see the server interactions and learn how to integrate Care Gaps management
-                        into your environment. We suggest you run through the demo once before viewing the server interactions.</i></p>
-                    </div>`;
-                    break;
-                case 2:
-                    abcActorActor = "Admin";
-                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
-                        <p>This scenario starts with a Clinical Support Staff using the Smile Digital Quality Measure module, Care Gap Worklist feature to monitor a patient population for
-                        gaps in care prospectively. They will identify patients at risk of open care gaps related to the Colorectal Cancer Screening Quality Measure. Then they can
-                        easily schedule an appointment so the patient and clinician can discuss options for ensuring recommended treatment to prevent a gap in care.</p>
-                        <p><i>You are now playing the role of an office <b>Admin</b>istrator.</i></p>
-                            <ol><li>Drag a patient(s) at left to the calendar.
-                                <li>Click on an appointment in the calendar to jump to that Patient-Provider encounter.
-                            </ol>
-                    </div>`;
-                    break;
-                case 3:
-                    abcActorActor = "Provider";
-                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
-                        <p>During the patient visit, the Smile Digital Quality Measure module requests a Gaps in Care report. The clinician (provider) is notified of the resulting risks for gaps in care.</p>
-                        <p><i>Within your EMR, Select <b>Colorectal Cancer ScreeningFHIR</b> to start the process of closing it.</i></p>
-                        </div>`;
-                    break;
-                case 4:
-                    abcActorActor = "Provider";
-                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
-                        <p>The Smile Clinical Decision Support module provides the clinician with treatment recommendations based on the evidence-based American Cancer Society’s Guidelines for Colorectal
-                            Cancer Screening to avoid a gap in care.</p>
-                        <p><i>You can go with the recommended procedure/test and/or select a different one.</i></p>
-                    </div>`;
-                    break;
-                case 5:
-                    abcActorActor = "Patient";
-                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
-                        <p>Once the recommended intervention has been completed, the data relative to the Colorectal Cancer Screening Quality Measure is submitted to the Smile Digital Quality Measure server.</p>
-                    </div>`;
-                    break;
-                case 6:
-                    abcActorActor = "Provider";
-                    s = `<div id="abcStoryContent" class="abcStoryContent ${abcActorActor}">
-                        <p>During a subsequent patient visit, the Smile Digital Quality Measure module requests a new Gaps in Care report, which then shows that the patient has received treatment that meets the
-                            Colorectal Cancer Screening Quality Measure requirements.  The care gap risk has been proactively mitigated.</p>
-                        <p><i>To reset the data on the server and restart the demo, click the <i class="fa fa-recycle resetDemo"></i> icon in the title at top left.</i></p>
-                    </div>`;
-                    break;
+        setPrompts = (role) => {
+            const prompts = {
+                "Provider": [
+                    "Give me a summary of this patient's current status.",
+                    "What is my patient's current medication list, including medication type, dosage, frequency and prescribing provider?",
+                    "What was the result of this patient's last stress test?",
+                    "Who is this patient's current healthcare power of attorney and point of contact?"],
+                "Patient": [
+                    "When is my next cardiology appointment?",
+                    "How many blood pressure medication refills do I have left?",
+                    "What are my daily medications, including a dosage schedule?",
+                    "What was my most recent test result?"],
+                "Admin": [
+                    "How many patients are there?",
+                    "How many patients had a visit in the last month?",
+                    "How many patients tested positive for Covid?",
+                    "How many patients detected a fever over 102 degrees fahrenheit?",
+                    "Create a pie graph showing patients by age in increments of 10 years."]
             }
-            abcActorStage++;
-            abcActorFocus("abcStory" + abcActorActor, s);
-        }
-
-        function clearPrompts(){
-            document.getElementById('observationPrompts').innerHTML = '';
-        }
-
-        function makePrompt(prompt, num) {
-            var div = document.createElement('div');
-            div.className='form-check';
-            var input = document.createElement('input');
-            div.appendChild(input);
-            input.className='form-check-input';
-            input.name = 'observationPrompt';
-            input.type = 'radio';
-            input.value = prompt;
-            input.id = 'promptCheck' + num;
-            input.addEventListener('change', function() {
-                document.getElementById('selectedValue').value = input.value;
+            const ar = prompts[role];
+            let s = "<ul>";
+            ar.forEach(el => {
+                s += `<li onclick="document.getElementById('selectedValue').value=this.innerHTML" onmouseenter="this.style.backgroundColor='#ccc'" onmouseleave="this.style.backgroundColor=''">${el}</li>`
             });
-            var label = document.createElement('label');
-            div.appendChild(label);
-            label.className = 'form-check-label';
-            label.setAttribute('for', 'promptCheck' + num);
-            label.innerText = prompt;
-            return div;
+            s += "</ul>";
+            setTimeout(() => {  //Need to give a chance for the DOM to catch up
+                document.getElementById("queryTemplatePrompts" + role).innerHTML = s;
+            }, 300);
         }
 
-        function setProviderPrompts(){
-            clearPrompts();
-            var container = document.getElementById('observationPrompts');
-            var prompt1 = makePrompt("Give me a summary of this patient's current status.", 1);
-            container.appendChild(prompt1);
-            var prompt2 = makePrompt("What is my patient's current medication list, including medication type, dosage, frequency and prescribing provider?", 2);
-            container.appendChild(prompt2);
-            var prompt3 = makePrompt("What was the result of this patient's last stress test?", 3);
-            container.appendChild(prompt3);
-            var prompt4 = makePrompt("Who is this patient's current healthcare power of attorney and point of contact?", 4);
-            container.appendChild(prompt4);
-        }
-
-        function setPatientPrompts(){
-            clearPrompts();
-            var container = document.getElementById('observationPrompts');
-            var prompt1 = makePrompt("When is my next cardiology appointment?", 1);
-            container.appendChild(prompt1);
-            var prompt2 = makePrompt("How many blood pressure medication refills do I have left?", 2);
-            container.appendChild(prompt2);
-            var prompt3 = makePrompt("What are my daily medications, including a dosage schedule?", 3);
-            container.appendChild(prompt3);
-            var prompt4 = makePrompt("What was my most recent test result?", 4);
-            container.appendChild(prompt4);
-
-        }
-
-        function setAdminPrompts(){
-            clearPrompts();
-            var container = document.getElementById('observationPrompts');
-            var prompt1 = makePrompt("How many patients are there?", 1);
-            container.appendChild(prompt1);
-            var prompt2 = makePrompt("How many patients had a visit in the last month?", 2);
-            container.appendChild(prompt2);
-            var prompt3 = makePrompt("How many patients tested positive for Covid?", 3);
-            container.appendChild(prompt3);
-            var prompt4 = makePrompt("How many patients detected a fever over 102 degrees fahrenheit?", 4);
-            container.appendChild(prompt4);
-
-        }
-
-        function setProviderRole(){
-            console.log('Setting role to Provider');
-            abcActorStage = 6;
+        function setProviderRole() {
             abcActorActor = 'Provider';
-            abcActorFocus('abcStoryProvider', "You are now acting as a Provider. You have access to query multiple patients or a single patient.");
-            setProviderPrompts();
+            abcActorFocus('abcStory' + abcActorActor, `<div class="abcStoryContent ${abcActorActor}">
+                <p>You are now acting in the role of a <b>Provider</b>. You have access to query <b>multiple patients or a single patient</b>. (Security is enforced by Smile CDR)</p>
+                <p>Write your own query, or select from one of the following starter queries:</p>
+                <div id="queryTemplatePrompts${abcActorActor}">a</div>
+            </div>`);
+            setPrompts(abcActorActor);
         }
-
-        function setPatientRole(){
-            console.log('Setting role to Patient');
-            abcActorStage = 5;
+        function setPatientRole() {
             abcActorActor = 'Patient';
-            abcActorFocus('abcStoryPatient', "You are now acting as a Patient. You have access to query only a single patient, and you will receive answers in a patient-friendly tone.");
-            setPatientPrompts();
+            abcActorFocus('abcStory' + abcActorActor, `<div class="abcStoryContent ${abcActorActor}">
+                <p>You are now acting in the role of a <b>Patient</b>. You may only query <b>your own data</b>. (Security is enforced by Smile CDR)</p>
+                ${renderPatientDropdown()}
+                <p>Write your own query, or select from one of the following starter queries:</p>
+                <div id="queryTemplatePrompts${abcActorActor}">a</div>
+            </div>`);
+            setPrompts(abcActorActor);
+            //Construct the abcFHIRGridContainer (Patient selector)
+            setTimeout(() => {
+                abcFHIRGrid = new Tabulator("#abcFHIRGridContainer", {
+                    autoColumns: true,
+                    height: getParam(abcFHIRGridParams, abcFHIRGridParams.template, "height"),
+                    layout: "fitDataStretch",
+                    placeholder: "Fetching some data...",
+                    columns: getParam(abcFHIRGridParams, abcFHIRGridParams.template, "cols"),
+                });
+                abcFHIRGridInstantiate();
+            }, 500);
+        }
+        function setAdminRole() {
+            abcActorActor = 'Admin';
+            abcActorFocus('abcStory' + abcActorActor, `<div class="abcStoryContent ${abcActorActor}">
+                <p>You are now acting in the role of an <b>Administrator</b>. You may access to query across the <b>full patient population</b>. (Security is enforced by Smile CDR)</p>
+                <p>Write your own query, or select from one of the following starter queries:</p>
+                <div id="queryTemplatePrompts${abcActorActor}">a</div>
+            </div>`);
+            setPrompts(abcActorActor);
         }
 
-        function setAdminRole(){
-            console.log('Setting role to Admin');
-            abcActorStage = 0;
-            abcActorActor = 'Admin';
-            abcActorFocus('abcStoryAdmin', "You are now acting as an Admin. You have access to query across the full patient population.");
-            setAdminPrompts();
+        //Set Patient Context: Render the patient selector
+        renderPatientDropdown = () => {
+            let s = `Set the patient context:
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="basic-addon1">
+                    <i class="fa-solid fa-id-card-clip"></i>
+                </span>
+                <input id="PatientSearch" type="text" class="form-control" placeholder="Enter a Patient's name (try 'Betsy')" aria-label="Username" aria-describedby="basic-addon1" required
+                    onblur="setTimeout(() => {
+                    document.getElementById('abcFHIRGridContainer').style.visibility = 'hidden';
+                    document.getElementById('abcFHIRGridContainerLoading').style.visibility = 'hidden';
+                }, 250);">
+                <input type="hidden" value="" id="PatientSearchValue">
+                <div id="abcFHIRGridContainer" style="visibility:hidden;"></div>
+                <div id="abcFHIRGridContainerLoading" class="fadeInFadeOut" style="z-index: 999; visibility:hidden; background-color:rgb(0, 140, 255); height:3px;"></div>
+            </div>
+            <div id="patient-info" class="hidden"><!-- Patient info will be populated here --></div>`;
+            return s;
         }
+
+
 
         //Animate the transition between story boards, i.e. shift focus to another actor/tab {Provider, Patient, Admin} (within abcActor)
         async function abcActorFocus(actorNew, content) {
@@ -543,8 +451,6 @@
                 $('.fa-chevron-right').toggleClass('hide');
             });
         }
-
-
 
 
         /*************** Remote Server Operations (previously AJAX) ***************/
@@ -632,24 +538,6 @@
             };
         }
 
-        /*************** Generic utility functions ***************/
-        //Populate list of FHIR servers
-        addItemToSelect = (selectID, itemsAr) => {
-            let sel = document.getElementById(selectID);
-            itemsAr.forEach(element => {
-                opt = document.createElement("option");
-                opt.text = element;
-                sel.add(opt);
-            });
-        };
-        (() => {
-            setTimeout(() => {  //Can't add options to the select until the HTML (below) has been rendered
-                let t = [];
-                for (const el of dataParams.servers) { t.push(el.server) }
-                addItemToSelect("FHIRServer", t);
-            }, 100);
-        })()
-
         //Add an element (default = <div>) to the document (default append to = <body>)
         addHTMLel = (elID, className, appendTo = document.body, elType = "div") => {
             const el = document.createElement(elType);
@@ -718,21 +606,17 @@
             document.getElementById(temp).innerHTML = '<img id="clientDevice" src="assets/img/clientdevices.png" style="width: 50px;"><span style="position:relative; top:30px; left:-39px;">(me)</span>';
 
 
-            changeServer();
-
             $('.circle').click(function () {
                 toggleSidepanel();
             });
             winResizeEvent();
-
-            abcActorNext();     //Set the abcActor to the first story board
 
             setTimeout(() => {  //Open the sidePanel by default when the page is loaded
                 toggleSidepanel();
             }, 1500);
 
             //Add popup alerts
-            abcAddPopup("flipCareButton", "Toggle between Demo Narration and API Monitor");
+            abcAddPopup("flipCareButton", "Toggle between Roles and API Monitor");
             abcAddPopup("toggleSidePanelButton", "Toggle side panel visibility");
 
             // default role is provider
@@ -756,11 +640,10 @@
                 <!-- MockEMR Heading row -->
                 <div class="rowTitle">
                     <span class="headingTitle2" style="margin-left: 10px;">
-                        </i> Demo <i class="fa fa-arrow-circle-right"></i> Hackathon <i
-                            class="fa fa-arrow-circle-right"></i>
+                        </i> Demo <i class="fa fa-arrow-circle-right"></i> Smile CDR & LLMs </i>
                     </span>
                     <span class="alignRight">
-                        <span class="headingTitle">&nbsp;&nbsp;&nbsp;Mock EMR&nbsp;&nbsp;&nbsp;</span>
+                        <span class="headingTitle">&nbsp;&nbsp;&nbsp;Natural Language FHIR&nbsp;&nbsp;&nbsp;</span>
                         <img src="assets/img/sdh200.png" height="40">
                     </span>
                 </div>
@@ -776,154 +659,35 @@
                             </div>
                         </div> -->
                         <div class="alert alert-danger text-center" role="alert">
-                            This is a non-PHI friendly demo.
-                          </div>
+                            This is a non-PHI demo. There is no PHI wwithin. Please do not enter any PHI.
+                        </div>
                         <div class="card shadow p-3 m-5 bg-body rounded">
-                            <div id="patientDetails" class="p-3 mb-2 mx-5">
-                                <h1 class="text-center fs-1">Patient Viewer</h1>
-
-                                <!--************** The dropdown search box, Only one search field per page supported **************-->
-                                <!-- The search input field -->
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text" id="basic-addon1">
-                                        <i class="fa-solid fa-id-card-clip"></i>
-                                    </span>
-                                    <input id="PatientSearch" type="text" class="form-control" placeholder="Enter a Patient's name" aria-label="Username" aria-describedby="basic-addon1"
-                                    required onblur="setTimeout(() => {
-                                        document.getElementById('abcFHIRGridContainer').style.visibility = 'hidden';
-                                        document.getElementById('abcFHIRGridContainerLoading').style.visibility = 'hidden';
-                                    }, 250);">
-                                    <input type="hidden" value="" id="PatientSearchValue">
-                                    <!-- The Dropdown Container, and the animation for server fetches -->
-                                    <div id="abcFHIRGridContainer" style="visibility:hidden;"></div>
-                                    <div id="abcFHIRGridContainerLoading" class="fadeInFadeOut" style="z-index: 999; visibility:hidden; background-color:rgb(0, 140, 255); height:3px;"></div>
-                                  </div>
-
-                                <script>
-                                    var abcFHIRGrid;    //requires global scoping
-                                    //************** Page Ready Functions **************
-                                    $(document).ready(function () {
-                                        //Construct the abcFHIRGridContainer
-                                        abcFHIRGrid = new Tabulator("#abcFHIRGridContainer", {
-                                            autoColumns: true,
-                                            height: getParam(abcFHIRGridParams, abcFHIRGridParams.template, "height"),
-                                            layout: "fitDataStretch",
-                                            placeholder: "Fetching some data...",
-                                            columns: getParam(abcFHIRGridParams, abcFHIRGridParams.template, "cols"),
-                                        });
-                                        abcFHIRGridInstantiate();
-                                    })
-                                </script>
-
-                                <div id="patient-info" class="hidden">
-                                    <!-- Patient info will be populated here -->
-                                </div>
+                            <!-- <div id="patientDetails" class="p-3 mb-2 mx-5"> -->
 
 
-                                <!-- <p class="fs-5 pt-3">Select a Resource</p>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                        id="flexRadioDefault1" value="Observations"
-                                        (onclick)="showPrompts('Observations')">
-                                    <label class="form-check-label" for="flexRadioDefault1">
-                                        Observations
-                                    </label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                        id="flexRadioDefault2" value="Encounter">
-                                    <label class="form-check-label" for="flexRadioDefault2">
-                                        Encounter
-                                    </label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                        id="flexRadioDefault3" value="Encounter">
-                                    <label class="form-check-label" for="flexRadioDefault3">
-                                        Conditions
-                                    </label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                        id="flexRadioDefault4" value="Immunizations">
-                                    <label class="form-check-label" for="flexRadioDefault4">
-                                        Immunizations
-                                    </label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                        id="flexRadioDefault5" value="CareGaps">
-                                    <label class="form-check-label" for="flexRadioDefault5">
-                                        CareGaps
-                                    </label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                        id="flexRadioDefault6" value="ClinicalNotes">
-                                    <label class="form-check-label" for="flexRadioDefault6">
-                                        Clinical Notes
-                                    </label>
-                                </div> -->
 
 
-                                <p class="fs-5 pt-3">Select a Prompt</p>
-                                <div id="observationPrompts">
-                                    <div class="form-check">
-                                        <input class="form-check-input" name="observationPrompt" type="checkbox"
-                                            value="What can you tell me about these observations?"
-                                            id="flexCheckDefault">
-                                        <label class="form-check-label" for="flexCheckDefault">
-                                            What can you tell me about these observations?
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" name="observationPrompt" type="checkbox" value="Can you explain each of them in detail and tell if the values are within the
-                                        normal bounds?" id="flexCheckChecked">
-                                        <label class="form-check-label" for="flexCheckChecked">
-                                            Can you explain each of them in detail and tell if the values are within the
-                                            normal bounds?
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" name="observationPrompt" type="checkbox"
-                                            value="Can you explain these results in both clinical and layman terms separately?"
-                                            id="flexCheckChecked">
-                                        <label class="form-check-label" for="flexCheckChecked">
-                                            Can you explain these results in both clinical and layman terms separately?
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" name="observationPrompt" type="checkbox"
-                                            value="Are there any abnormalities in these results?" id="flexCheckChecked">
-                                        <label class="form-check-label" for="flexCheckChecked">
-                                            Are there any abnormalities in these results?
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div class="input-group py-3">
-                                    <span class="input-group-text">Your query</span>
-                                    <textarea id="selectedValue" class="form-control" aria-label="With textarea"
-                                        ></textarea>
-                                </div>
-
-                                <button class="btn btn-primary" type="button" id="submitButton" 
-                                onclick="submitData(abcActorActor)">
-                                    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-                                    Submit
-                                    </button>
-
-                                    <div class="input-group py-3">
-                                        <span class="input-group-text">Calculation:</span>
-                                        <textarea id="calculationValue" class="form-control" style="height: 10rem;" aria-label="With textarea" readonly ></textarea>
-                                    </div>
-
-                                    <div class="input-group py-3">
-                                        <span class="input-group-text">Response:</span>
-                                        <textarea id="responseValue" class="form-control" aria-label="With textarea" readonly ></textarea>
-                                        <div id="responseResources"></div>
-                                    </div>
+                            <div class="input-group py-3">
+                                <span class="input-group-text">Your query</span>
+                                <textarea id="selectedValue" class="form-control" aria-label="With textarea"></textarea>
                             </div>
+
+                            <button class="btn btn-primary" type="button" id="submitButton" onclick="submitData(abcActorActor)">
+                                <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                                Submit
+                            </button>
+
+                            <div class="input-group py-3">
+                                <span class="input-group-text">Calculation:</span>
+                                <textarea id="calculationValue" class="form-control" style="height: 10rem;" aria-label="With textarea" readonly></textarea>
+                            </div>
+
+                            <div class="input-group py-3">
+                                <span class="input-group-text">Response:</span>
+                                <textarea id="responseValue" class="form-control" aria-label="With textarea" readonly></textarea>
+                                <div id="responseResources"></div>
+                            </div>
+                            <!-- </div> -->
                         </div>
 
 
@@ -933,7 +697,7 @@
                 </div>
 
                 <!-- MockEMR Footer row -->
-                <div id="mockEMRFooter" class="rowFooter">Care Gaps Demo v1.1.6</div>
+                <div id="mockEMRFooter" class="rowFooter">Hackathon Sept2023</div>
             </div> <!-- END: MockEMR -->
         </div>
 
@@ -949,18 +713,14 @@
                                 <div id="abcStoryProvider" class="regular provider" onclick="setProviderRole()"><i class="fa fa-stethoscope"></i>
                                     <span style="color: #000;">Provider</span>
                                 </div>
-                                <div id="abcStoryPatient" class="regular patient" onclick="setPatientRole()"><i class="fa fa-user"></i> <span
-                                        style="color: #000;">Patient</span></div>
-                                <div id="abcStoryAdmin" class="focus admin" onclick="setAdminRole()"><i
-                                        class="fa-solid fa-hand-holding-medical"></i> <span
-                                        style="color: #000;">Admin</span></div>
+                                <div id="abcStoryPatient" class="regular patient" onclick="setPatientRole()"><i class="fa fa-user"></i> <span style="color: #000;">Patient</span></div>
+                                <div id="abcStoryAdmin" class="focus admin" onclick="setAdminRole()"><i class="fa-solid fa-hand-holding-medical"></i> <span style="color: #000;">Admin</span></div>
                             </div>
                             <div class="abcActor">
                                 <div class="storyMain" id="abcStoryMain">&nbsp;
                                     <section id="abcStoryProviderMain" class="abcStorySection"></section>
                                     <section id="abcStoryPatientMain" class="abcStorySection"></section>
-                                    <section id="abcStoryAdminMain" class="abcStorySection"
-                                        style="display:block; opacity: 1"></section>
+                                    <section id="abcStoryAdminMain" class="abcStorySection" style="display:block; opacity: 1"></section>
                                 </div>
                             </div>
                         </div>
@@ -991,6 +751,7 @@
     $(document).ready(function () {
         // This will check whether the user has been authenticated to a Smile CDR server.
         // If not, it will redirect to the connect page. See auth.js for details.
+        /* Remarked out while debugging */
         checkAuthentication({
             callback: () => {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -1001,7 +762,8 @@
                     loadExistingPrompt(id);
                 }
             },
-        });
+        }); 
+        
     });
 </script>
 

@@ -15,8 +15,8 @@ let abcFHIRGridParams = {
     loadDelay: 0, // Delay time between grabbing the pages
     deepSearch: false, // Search phonetically any part of common name elements; otherwise search exact start of family name. (This will override the searchWithin parameter)
     searchWithin: "family",
-    height: 150,
-    width: 300,
+    height: 200,
+    width: 500,
     baseURL: "http://hapi.fhir.org/baseR4/",
     elements: "identifier,name", //CSV of the resource elements to return from the server
     patient: {
