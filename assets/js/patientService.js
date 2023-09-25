@@ -77,7 +77,7 @@ function getAiBaseUrl() {
 
 function showResponse({ messages,  promptId }) {
     const responseValue = document.getElementById('responseValue');
-    responseValue.innerText = `${messages[messages.length - 1].content}`;
+    responseValue.innerText = `${messages[messages.length - 1].message}`;
 
     const IMG_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'tiff'];
 
@@ -157,9 +157,9 @@ function pollMessages(id) {
         .then((data) => {
             if (!data) return;
 
-            if (data.busy) {
-                this.showCalculation(data.messages);
-            } else {
+            this.showCalculation(data.messages);
+
+            if (!data.busy) {
                 clearInterval(intervalId);
                 resetSubmitButton();
 
@@ -179,7 +179,8 @@ function submitData(role) {
     resetResponse();
 
     const selectedValue = document.getElementById('selectedValue').value;
-    const patientId = document.getElementById('PatientSearchValue').value;
+    const patientIdVar = $('#PatientSearchValue');
+    const patientId = patientIdVar.length ? patientIdVar.val() : null;
     const accessToken = getAccessToken();
     const patientData = {
         prompt: selectedValue,
