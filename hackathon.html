@@ -663,7 +663,7 @@
             // data = sampleResponseTestData;   //Override with test data
             let s = "";
             data.forEach(el => {
-                let msg = el.message;     //long test. Line breaks \n
+                let msg = el.message || el.content || '';     //long test. Line breaks \n
                 let role = el.role;       //user or assistant ==> user = prompt, grounding; assistant = OI
                 let code = el.code || "";       //code snippet. Formatted in lang. Line breaks \n
                 let lang = el.language || "";       //string representing the programming language. e.g. "python"
@@ -684,7 +684,7 @@
             });
             document.getElementById("oiResponse").innerHTML = s;
             PR.prettyPrint();
-            document.getElementById("oiResponse").scrollIntoView(false)
+            document.getElementById("oiResponse").scrollIntoView(false);
         }
     </script>
 </head>

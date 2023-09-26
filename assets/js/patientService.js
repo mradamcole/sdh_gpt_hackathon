@@ -1,3 +1,12 @@
+function getAiBaseUrl() {
+    // To run against a local smile-ai instance, uncomment this line:
+    //return 'http://localhost:5002';
+    
+    const fhirOrigin = getFhirClientOrigin();
+
+    return `${fhirOrigin}/smile-ai`;
+}
+
 function getAccessToken() {
     const { state } = window.fhirClient;
     const { access_token } = state.tokenResponse;
@@ -69,27 +78,16 @@ document.querySelectorAll('input[name="observationPrompt"]').forEach(function (c
     });
 });
 
-function getAiBaseUrl() {
-    const fhirOrigin = getFhirClientOrigin();
-
-    return `${fhirOrigin}/smile-ai`;
-}
-
-function showResponse({ messages, promptId }) {
-    const responseValue = document.getElementById('responseValue');
-    responseValue.innerText = `${messages[messages.length - 1].message}`;
+function showResponseResources(promptId) {
+    const oiResponse = $('#oiResponse');
 
     const IMG_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'tiff'];
 
     const aiBaseUrl = getAiBaseUrl();
 
-    const responseResourcesDiv = $('#responseResources');
-    const aLabel = $(`<span>URL: </span>`);
-    responseResourcesDiv.append(aLabel);
-
     const url = `${window.location.origin}${window.location.pathname}?id=${promptId}`;
-    const aElement = $(`<a href="${url}">${url}</a>`);
-    responseResourcesDiv.append(aElement);
+    const urlMessageDiv = $(`<div class="msg assistant"><i class="fa-solid fa-brain"></i>&nbsp;&nbsp;URL: <a href="${url}">${url}</a></div>`);
+    oiResponse.append(urlMessageDiv);
 
     fetch(`${aiBaseUrl}/output/${promptId}`, {
         method: 'POST',
@@ -98,19 +96,21 @@ function showResponse({ messages, promptId }) {
         },
         body: JSON.stringify({ accessToken: getAccessToken() }),
     })
-        .then(response => response.json())
-        .then((filenames) => {
-            filenames.forEach((filename) => {
-                const filenameParts = filename.split('.');
-                const ext = (filenameParts.length ? filenameParts[filenameParts.length - 1] : '').toLowerCase();
+    .then(response => response.json())
+    .then((filenames) => {
+        filenames.forEach((filename) => {
+            const filenameParts = filename.split('.');
+            const ext = (filenameParts.length ? filenameParts[filenameParts.length - 1] : '').toLowerCase();
 
-                if (IMG_EXTS.includes(ext)) {
-                    const img = $(`<img src="${aiBaseUrl}/output/${promptId}/${filename}" />`);
+            if (IMG_EXTS.includes(ext)) {
+                const img = $(`<img src="${aiBaseUrl}/output/${promptId}/${filename}" />`);
 
-                    responseResourcesDiv.append(img);
-                }
-            });
+                oiResponse.append(img);
+            }
         });
+        
+        oiResponse.scrollIntoView(false);        
+    });
 }
 
 function showCalculation(data) {
@@ -123,14 +123,11 @@ function showCalculation(data) {
 
 
 function resetResponse() {
-    document.getElementById('responseValue').innerText = '';
-    $('#responseResources').empty();
+    document.getElementById('oiResponse').innerHTML = '';
 }
 
 function pollMessages(id) {
     const resetSubmitButton = () => {
-        // submitButton.innerText = 'Submit';
-        // submitButton.removeAttribute('disabled');
         document.getElementById('selectedValue').removeAttribute('disabled');
         document.getElementById("selectedValueHeader").classList.remove("gradient-background")
     };
@@ -146,31 +143,27 @@ function pollMessages(id) {
             },
             body: JSON.stringify({ accessToken }),
         })
-            .then(response => {
-                if (!response.ok) {
-                    clearInterval(intervalId);
-                    resetSubmitButton();
+        .then(response => {
+            if (!response.ok) {
+                clearInterval(intervalId);
+                resetSubmitButton();
 
-                    return null;
-                }
+                return null;
+            }
 
-                return response.json();
-            })
-            .then((data) => {
-                if (!data) return;
+            return response.json();
+        })
+        .then((data) => {
+            if (!data) return;
 
-            this.showCalculation(data.messages);
+            displayResponse(data.messages);
 
             if (!data.busy) {
                 clearInterval(intervalId);
                 resetSubmitButton();
-
-                    this.showResponse({
-                        messages: data.messages,
-                        promptId: id,
-                    });
-                }
-            });
+                showResponseResources(id);
+            }
+        });
     }, 2000);
 }
 
@@ -234,8 +227,8 @@ function submitData(role) {
         .then(response => response.json())
         .then((data) => pollMessages(data.prompt_id))
         .catch((error) => {
-            submitButton.innerText = 'Submit';
-            submitButton.removeAttribute('disabled');
+            document.getElementById('selectedValue').removeAttribute('disabled');
+            document.getElementById("selectedValueHeader").classList.remove("gradient-background")
             console.error('Error:', error);
         });
 }
@@ -269,7 +262,7 @@ function loadExistingPrompt(id) {
 
             $('#selectedValue').text(data.request.prompt);
 
-            showCalculation(data.messages);
-            showResponse({ messages: data.messages, promptId: id });
+            displayResponse(data.messages);
+            showResponseResources(id);
         });
 }
