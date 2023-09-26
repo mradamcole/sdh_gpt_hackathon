@@ -24,25 +24,18 @@
     <!-- Generic -->
     <link rel="stylesheet" href="assets/css/abcGeneric.css">
 
-    <!--  Logger  -->
-    <link rel="stylesheet" type="text/css" href="assets/css/logger.css">
+    <!--  Sidepanel  -->
     <link rel="stylesheet" type="text/css" href="assets/css/sidepanelSplit.css">
 
     <!--  Bootstrap  -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
 
-    <!--  JSON Viewer  -->
-    <link rel="stylesheet" type="text/css" href="assets/css/jquery.json-viewer.css">
-
     <!-- Flip card -->
     <link rel="stylesheet" type="text/css" href="assets/css/flipcard.css">
 
     <!-- Resizing tabs -->
     <link rel="stylesheet" type="text/css" href="assets/css/resizingTabs.css">
-
-    <!--  flow chart connectors and dynamic grid   -->
-    <link rel='stylesheet' type="text/css" href='assets/css/abcFlow.css'>
 
     <!-- CSS: Tabulator (fhirGrid) -->
     <link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator.min.css" rel="stylesheet">
@@ -52,15 +45,6 @@
     <!--   Core JS Files   -->
     <script src="assets/js/patientService.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
-
-    <!--  Logger  -->
-    <script type="text/javascript" src="assets/js/logger.js"></script>
-
-    <!--  JSON Viewer  -->
-    <script type="text/javascript" src="assets/js/jquery.json-viewer.js"></script>
-
-    <!-- flow chart connectors and dynamic grid -->
-    <script type="text/javascript" src='assets/js/abcFlow.js'></script>
 
     <!-- Generic functions -->
     <script type="text/javascript" src='assets/js/abcGeneric.js'></script>
@@ -86,7 +70,7 @@
 
 
     <!-- ****************************************  vv Test Data vv  **************************************** -->
-    <script src="sampleResponse.js"></script>
+    <!-- <script src="sampleResponse.js"></script> -->
     <!-- ****************************************  ^^ Test Data ^^  **************************************** -->
 
     <style>
@@ -320,11 +304,7 @@
 
         .oiResponse .codeBlock {
             width: 100%;
-            /* background-color: #012;
-            color: #eef; */
-            /* background-color: #eee; */
             color: #024;
-            /* padding: 2px 10px; */
             padding: 10px 0px 0px 0px;
             border-bottom: 1px solid #024;
             font-style: italic;
@@ -359,17 +339,6 @@
         var Logger; //Global variable for the API Monitor
         let abcActorStage = 1;  //current actor story; see abcActorNext()
         let abcActorActor;      //current actor; see abcActorNext()
-
-        //Look for a variable and replace it with dataParams.variable e.g.: url/Patient/{ptID} ==> url/Patient/<dataParams.ptID>
-        //TODO: I cheated and did this quick and dirty, hardcoded for ptID. Make this work for any variable; and use getParam so that it will search multi-levels within dataParams.
-        // **************************************************************** I'm pretty sure we can delete this for the Hackathon - I think it is specific to DQM
-        // apiReplaceVar = (api) => {
-        //     if (api.search("{") >= 0) {
-        //         api = api.replace(/{ptID}/g, dataParams.curCareGap.ptID);
-        //     }
-        //     return api;
-        // }
-
 
         //Flip the card with the given cardID        
         abcCardFlip = (cardID) => {
@@ -468,8 +437,6 @@
             return s;
         }
 
-
-
         //Animate the transition between story boards, i.e. shift focus to another actor/tab {Provider, Patient, Admin} (within abcActor)
         async function abcActorFocus(actorNew, content) {
             actorNew = document.getElementById(actorNew);
@@ -536,92 +503,6 @@
             });
         }
 
-
-        /*************** Remote Server Operations (previously AJAX) ***************/
-        //async/await fetch (i.e. Promise AJAX). apiPath = everything after the domain (e.g. Patient/123). callbackfn e.g.: function(data){console.log(data)}
-        //   verb is optional, default = GET. bodyJSON is optional (JSON formatted). headersObj is optional, e.g. {"Content-Type": "text/plain",}. optionsObj is optional, e.g. {mode: "cors",}
-        async function APICall(apiPath, callbackFn, verb, bodyJSON, headersObj, optionsObj) {
-            apiPath = apiReplaceVar(apiPath);
-            try {
-                if (!verb) verb = "GET";
-                if (!optionsObj) optionsObj = {};
-                let api = dataParams.baseURL + apiPath;
-                //headers
-                let fetchHeaders = new Headers(
-                    headersObj
-                );
-                if (dataParams.baseCredentials != "Og==") { fetchHeaders.append("Authorization", `Basic ${dataParams.baseCredentials}`) }   //"Og==" is base64 encoding of anonymous credentials
-                //options
-                optionsObj.method = verb;
-                if (bodyJSON) optionsObj.body = JSON.stringify(bodyJSON);
-                optionsObj.headers = fetchHeaders;
-                //update the flow window
-                APICallFlowUpdate(api, true, verb);
-                //fetch
-                let logID = Logger.addAPILog(api, verb, bodyJSON, headersObj, optionsObj);    //Log the API call
-                const source = await fetch(api, optionsObj);
-                const result = await source.json();
-                if (callbackFn !== undefined) callbackFn(result);
-                Logger.addAPIReturn(logID, result, source); //Log the API returned value
-                APICallFlowUpdate(api, false, verb);
-            } catch (err) {
-                console.log("err: ", err);
-            }
-        }
-
-        //Sub function of APICall
-        APICallFlowUpdate = (api, fetch = true, verb = "GET") => {
-            //Called by apiPath. This function renders the message(s) flowing betweent the client device and the server(s)
-            if (ApiFlow) {   //does the ApiFlow object exist? [Note that the name of the abcFlow object is expected to be ApiFlow]
-                //get the most specific (first part) of the subdomain
-                const urlParts = (api.match(/^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/));    //https://www.rfc-editor.org/rfc/rfc3986#appendix-B
-                const server = urlParts[4].substr(0, urlParts[4].indexOf("."));
-                //has this server already been rendered in the ApiFlow.grid?
-                let serverAlreadyRendered = -1;
-                let serversAr = ApiFlow.abcFlowDataParams.servers;
-                for (let i = 0; i < serversAr.length; i++) {
-                    if (serversAr[i].server == server) {
-                        serverAlreadyRendered = i;
-                        svgPath = serversAr[i].pathID;
-                        break;
-                    }
-                }
-                //if the server has not already been rendered to the grid, then render it, and add the SVG path connecting it to the clientDevice
-                if (serverAlreadyRendered == -1) {
-                    ApiFlow.gridAdd("abcFlowGrid", "cell", "auto", `<img id="server1" src="assets/img/server.png" style="width: 50px;"><span style="position:relative; top:30px; left:-50px;">${server}</span>`, false, 1);
-                    svgPath = ApiFlow.flowCreatePath('clientDevice', 'server1', 'message packet', false);
-                    ApiFlow.flowGridRedraw();
-                    serversAr[serversAr.length] = { "server": server, "pathID": svgPath, "actors": [] };
-                }
-                //has the actor (representing the complete URI) already been added?
-                let actors = serversAr[(serverAlreadyRendered == -1 ? 0 : serverAlreadyRendered)].actors;
-                let actorAlreadyRendered = -1;
-                for (i = 0; i < actors.length; i++) {
-                    if (actors[i] == api) {
-                        actorAlreadyRendered = i;
-                        break;
-                    }
-                }
-                //if the actor has not yet been rendered, then render it
-                const actorNameBase = "abcFlowContainer_actor";
-                let actorNameIndex = svgPath + "_";
-                if (actorAlreadyRendered == -1) {
-                    actorNameIndex += actors.length;
-                    ApiFlow.upsertActor(svgPath, actorNameIndex, (Logger._apiCount !== undefined ? Logger._apiCount : verb), `verb${verb}`);
-                    actors[actors.length] = `${api}`;
-                } else {
-                    actorNameIndex += actorAlreadyRendered;
-                }
-                //animate the actor
-                setTimeout(() => {
-                    //Give the upsertActor function a chance to render, and it also looks cool that the actors are not on top of each other on the SVG path
-                    ApiFlow.flowAnimate(actorNameBase + actorNameIndex, fetch, animDurationMs = "1000");
-                }, 100);
-                //increment the apiCounter
-                if (Logger._apiCount !== undefined) Logger._apiCount++;
-            };
-        }
-
         //Add an element (default = <div>) to the document (default append to = <body>)
         addHTMLel = (elID, className, appendTo = document.body, elType = "div") => {
             const el = document.createElement(elType);
@@ -641,7 +522,7 @@
 
         //Window resize actions
         winResizeEvent = () => {
-            document.getElementById("abcLogger").style.height = window.innerHeight + "px";
+            // document.getElementById("abcLogger").style.height = window.innerHeight + "px";
             updateStyleRule(":root", "--viewportWidth", window.innerWidth + "px");
         }
 
@@ -679,15 +560,15 @@
 
         //Page-loaded functions
         window.addEventListener('load', function () {
-            Logger = new abcLogger();
-            Logger.addTextLog("<img src='assets/img/sdh200.png' height=24 style='vertical-align: middle;'>&nbsp;&nbsp; API Monitor", "heading1", false);
-            //Add container for abcFlow inside the API Monitor
-            Logger.addTextLog(`<div class="containerForAbcFlow"><div id="abcFlowContainer" class="abcFlowContainer"></div></div>`, " ", false);
-            //Construct the abcFlow object, then add a row, then a cell, then content (client device icon)
-            ApiFlow = new abcFlow("abcFlowContainer");
-            ApiFlow.gridAdd("abcFlowContainer", "row", "abcFlowGrid");
-            let temp = ApiFlow.gridAdd("abcFlowGrid");
-            document.getElementById(temp).innerHTML = '<img id="clientDevice" src="assets/img/clientdevices.png" style="width: 50px;"><span style="position:relative; top:30px; left:-39px;">(me)</span>';
+            // Logger = new abcLogger();
+            // Logger.addTextLog("<img src='assets/img/sdh200.png' height=24 style='vertical-align: middle;'>&nbsp;&nbsp; API Monitor", "heading1", false);
+            // //Add container for abcFlow inside the API Monitor
+            // Logger.addTextLog(`<div class="containerForAbcFlow"><div id="abcFlowContainer" class="abcFlowContainer"></div></div>`, " ", false);
+            // //Construct the abcFlow object, then add a row, then a cell, then content (client device icon)
+            // ApiFlow = new abcFlow("abcFlowContainer");
+            // ApiFlow.gridAdd("abcFlowContainer", "row", "abcFlowGrid");
+            // let temp = ApiFlow.gridAdd("abcFlowGrid");
+            // document.getElementById(temp).innerHTML = '<img id="clientDevice" src="assets/img/clientdevices.png" style="width: 50px;"><span style="position:relative; top:30px; left:-39px;">(me)</span>';
 
 
             $('.circle').click(function () {
@@ -857,7 +738,9 @@
 
                     <!-- Back side of card -->
                     <div class="cardFace cardFaceBack">
-                        <div id="abcLogger" class="abcAPIContainer"></div>
+                        <div id="groundingsBox" class="abcAPIContainer">
+                            Groundings
+                        </div>
                     </div>
                 </div>
 
