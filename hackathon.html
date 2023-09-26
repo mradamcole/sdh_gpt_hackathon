@@ -81,6 +81,14 @@
     <!-- SoF Authentication -->
     <script src="assets/js/auth.js"></script>
 
+    <!-- Code beautifier (to pretty up Python code) -->
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+
+
+    <!-- ****************************************  vv Test Data vv  **************************************** -->
+    <script src="sampleResponse.js"></script>
+    <!-- ****************************************  ^^ Test Data ^^  **************************************** -->
+
     <style>
         :root {
             --textRevealDuration: 3s;
@@ -292,11 +300,54 @@
         }
 
         .oiResponse {
-            /* border: 10px solid #888;
-            border-radius: 5px;
-            background-color: #eee; */
             margin: 0px 20px 0px 20px;
+        }
 
+        .oiResponse .msg {
+            border: 1px solid #888;
+            border-radius: 5px;
+        }
+
+        .oiResponse .assistant {
+            background-color: #eee;
+            color: #000;
+        }
+
+        .oiResponse .user {
+            background-color: #cdf;
+            color: #259;
+        }
+
+        .oiResponse .codeBlock {
+            width: 100%;
+            /* background-color: #012;
+            color: #eef; */
+            /* background-color: #eee; */
+            color: #024;
+            /* padding: 2px 10px; */
+            padding: 10px 0px 0px 0px;
+            border-bottom: 1px solid #024;
+            font-style: italic;
+        }
+
+        .oiResponse .outputBlock {
+            width: 100%;
+            color: #024;
+            padding: 10px 0px 0px 0px;
+            border-bottom: 1px solid #024;
+            font-style: italic;
+        }
+
+        /* PrettyPrint line numbering code blocks */
+        li.L0,
+        li.L1,
+        li.L2,
+        li.L3,
+        li.L5,
+        li.L6,
+        li.L7,
+        li.L8 {
+            list-style-type: decimal !important;
         }
     </style>
 
@@ -685,6 +736,48 @@
             event.preventDefault();
         }, true);
 
+
+        /*************** Format the output ***************/
+        //fix line breaks
+        formatLineBreaks = (str) => {
+            return str.replace(/\r?\n|\r/g, "<br>");
+        }
+
+        //Pretty print the output
+        formatPreProcess = (str) => {
+            str = str.replace("Output truncated. Showing the last 2000 characters.", '<span class="nocode">Output truncated. Showing the last 2000 characters.</span>');
+            str = str.replaceAll(",", ",<br>");
+            return str;
+        }
+
+        //Take the JSON blob response from the OI server, format it, and display it
+        displayResponse = (data) => {
+            data = sampleResponseTestData;   //Override with test data
+            let s = "";
+            data.forEach(el => {
+                let msg = el.message;     //long test. Line breaks \n
+                let role = el.role;       //user or assistant ==> user = prompt, grounding; assistant = OI
+                let code = el.code || "";       //code snippet. Formatted in lang. Line breaks \n
+                let lang = el.language || "";       //string representing the programming language. e.g. "python"
+                let output = el.output || "";   // Line breaks \n
+                msg = formatLineBreaks(msg);
+                s += `<div class='msg ${role == "user" ? "user" : "assistant"}'><i class="fa-solid ${role == "user" ? "fa-user" : "fa-brain"}"></i>&nbsp;&nbsp;${msg}</div>`;
+                if (code) {
+                    s += `<div class='codeBlock'>Generating <b>${lang}</b> code</div>`;
+                    s += `<?prettify?><pre class="prettyprint linenums"><code class="language-py">${code}</code></pre>`;
+                }
+                if (output) {
+                    s += `<div class='outputBlock'>Results</div>`;
+                    output = formatLineBreaks(output);
+                    output = formatPreProcess(output);
+                    s += `<pre class="prettyprint">${output}</pre>`;
+                }
+                s += "<br><br>"
+            });
+            document.getElementById("oiResponse").innerHTML = s;
+            PR.prettyPrint();
+            document.getElementById("oiResponse").scrollIntoView(false)
+        }
     </script>
 </head>
 
@@ -715,8 +808,7 @@
                             This is a non-PHI demo. There is no PHI within. Please do not enter any PHI.
                         </div>
 
-                        <div id="oiResponse" class="oiResponse">Server response field</div>
-
+                        <div id="oiResponse" class="oiResponse"></div>
 
                         <!-- ********** END: Mock EMR Content ********** -->
                     </div>

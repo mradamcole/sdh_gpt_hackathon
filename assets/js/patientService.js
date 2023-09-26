@@ -178,6 +178,14 @@ function submitData(role) {
     document.getElementById('selectedValue').setAttribute('disabled', 'disabled');
     //add the animated gradient background
     document.getElementById("selectedValueHeader").classList.add("gradient-background")
+    //Check if test data has been loaded
+    if (typeof sampleResponseTestData === "undefined") {
+        //no test data loaded
+    } else {
+        //test data is present; call displayResponse() and exit this function
+        displayResponse();
+        return "";
+    }
     resetResponse();
 
     const selectedValue = document.getElementById('selectedValue').value;
