@@ -152,8 +152,8 @@
 
         .mockEMRContainer .rowBody {
             flex: 1;
-            /* overflow-y: auto; */
-            overflow-y: hidden;
+            overflow-y: auto;
+            /* overflow-y: hidden; */
             overflow-x: hidden;
             margin: 5px 5px 0px 5px;
         }
@@ -289,6 +289,14 @@
 
         .sendButton .sbIcon:hover {
             color: #af0;
+        }
+
+        .oiResponse {
+            /* border: 10px solid #888;
+            border-radius: 5px;
+            background-color: #eee; */
+            margin: 0px 20px 0px 20px;
+
         }
     </style>
 
@@ -704,24 +712,10 @@
 
 
                         <div class="alert alert-danger text-center" role="alert">
-                            This is a non-PHI demo. There is no PHI wwithin. Please do not enter any PHI.
+                            This is a non-PHI demo. There is no PHI within. Please do not enter any PHI.
                         </div>
-                        <div class="card shadow p-3 m-5 bg-body rounded">
-                            <!-- <div id="patientDetails" class="p-3 mb-2 mx-5"> -->
 
-
-                            <div class="input-group py-3">
-                                <span class="input-group-text">Calculation:</span>
-                                <textarea id="calculationValue" class="form-control" style="height: 10rem;" aria-label="With textarea" readonly></textarea>
-                            </div>
-
-                            <div class="input-group py-3">
-                                <span class="input-group-text">Response:</span>
-                                <textarea id="responseValue" class="form-control" aria-label="With textarea" readonly></textarea>
-                                <div id="responseResources"></div>
-                            </div>
-                            <!-- </div> -->
-                        </div>
+                        <div id="oiResponse" class="oiResponse">Server response field</div>
 
 
                         <!-- ********** END: Mock EMR Content ********** -->
@@ -734,7 +728,7 @@
                 </div>
                 <div style="border-radius: 5px; border: 1px solid #ced4da; margin: 0px 20px 20px 20px;">
                     <div>
-                        <span id="selectedValueHeader" class="input-group-text" style="border-radius: 0%;"><i class="fa-solid fa-brain"></i>&nbsp;&nbsp;Ask Smile:</span>
+                        <span id="selectedValueHeader" class="input-group-text" style="border-radius: 0%;"><!--<i class="fa-solid fa-brain"></i>&nbsp;&nbsp;-->Ask Smile:</span>
                         <textarea id="selectedValue" class="form-control" style="height: 100px; border-radius: 0%;" aria-label="With textarea"></textarea>
                     </div>
                 </div>
