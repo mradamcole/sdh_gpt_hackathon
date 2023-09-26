@@ -129,8 +129,10 @@ function resetResponse() {
 
 function pollMessages(id) {
     const resetSubmitButton = () => {
-        submitButton.innerText = 'Submit';
-        submitButton.removeAttribute('disabled');
+        // submitButton.innerText = 'Submit';
+        // submitButton.removeAttribute('disabled');
+        document.getElementById('selectedValue').removeAttribute('disabled');
+        document.getElementById("selectedValueHeader").classList.remove("gradient-background")
     };
 
     const aiBaseUrl = getAiBaseUrl();
@@ -173,9 +175,9 @@ function pollMessages(id) {
 }
 
 function submitData(role) {
-    const submitButton = document.getElementById('submitButton');
-    submitButton.innerText = 'Loading...';
-    submitButton.setAttribute('disabled', 'disabled');
+    document.getElementById('selectedValue').setAttribute('disabled', 'disabled');
+    //add the animated gradient background
+    document.getElementById("selectedValueHeader").classList.add("gradient-background")
     resetResponse();
 
     const selectedValue = document.getElementById('selectedValue').value;

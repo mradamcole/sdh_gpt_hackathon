@@ -254,19 +254,42 @@
             padding-left: 5px;
         }
 
-        /* @keyframes text-focus-in {
+        /********** animated gradient background **********/
+        .gradient-background {
+            background: linear-gradient(70deg, #F9A926, #EE2E17, #5E3DAD, #3A68BD, #00AED4, #47C150, #F9A926);
+            background-size: 180% 180%;
+            animation: gradient-animation 2s ease infinite;
+        }
+
+        @keyframes gradient-animation {
             0% {
-                filter: blur(12px);
-                opacity: 0;
-                top: -50px;
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
             }
 
             100% {
-                filter: blur(0px);
-                opacity: 1;
-                top: 0px;
+                background-position: 0% 50%;
             }
-        } */
+
+        }
+
+        /********** Misc **********/
+        .sendButton {
+            position: relative;
+            top: 30px;
+            width: 100%;
+            text-align: right;
+            padding-right: 25px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .sendButton .sbIcon:hover {
+            color: #af0;
+        }
     </style>
 
     <script>
@@ -297,10 +320,11 @@
         setPrompts = (role) => {
             const prompts = {
                 "Provider": [
-                    "Give me a summary of this patient's current status.",
-                    "What is my patient's current medication list, including medication type, dosage, frequency and prescribing provider?",
-                    "What was the result of this patient's last stress test?",
-                    "Who is this patient's current healthcare power of attorney and point of contact?"],
+                    "How many patients are in my practice?",
+                    "How many patients had a visit in the last month?",
+                    "How many patients tested positive for Covid?",
+                    "How many patients detected a fever over 102 degrees fahrenheit?",
+                    "Create a pie graph showing patients by age in increments of 10 years."],
                 "Patient": [
                     "When is my next cardiology appointment?",
                     "How many blood pressure medication refills do I have left?",
@@ -314,9 +338,10 @@
                     "Create a pie graph showing patients by age in increments of 10 years."]
             }
             const ar = prompts[role];
-            let s = "<ul>";
+            let s = `<ul style="list-style-type: none">`;
             ar.forEach(el => {
-                s += `<li onclick="document.getElementById('selectedValue').value=this.innerHTML" onmouseenter="this.style.backgroundColor='#ccc'" onmouseleave="this.style.backgroundColor=''">${el}</li>`
+                s += `<li onclick="document.getElementById('selectedValue').value='${el}'" onmouseenter="this.style.backgroundColor='#ccc'" onmouseleave="this.style.backgroundColor=''">
+                    <img src="assets/img/info.png" style="width:15px; vertical-align:inherit;">&nbsp;${el}</li>`
             });
             s += "</ul>";
             setTimeout(() => {  //Need to give a chance for the DOM to catch up
@@ -618,6 +643,7 @@
             //Add popup alerts
             abcAddPopup("flipCareButton", "Toggle between Roles and API Monitor");
             abcAddPopup("toggleSidePanelButton", "Toggle side panel visibility");
+            abcAddPopup("sendButton", "Ctrl-Enter to send");
 
             // default role is provider
             setProviderRole();
@@ -627,6 +653,29 @@
         window.addEventListener('resize', function () {
             winResizeEvent();
         })
+
+        window.addEventListener("keydown", function (event) {
+            if (event.defaultPrevented) {
+                return; // Do nothing if the event was already processed
+            }
+            switch (event.key) {
+                case "Enter":
+                    if (event.ctrlKey) {
+                        if (document.activeElement.id == "selectedValue") {
+                            //Ctrl+Enter pressed while focus is in selectedValue
+                            submitData(abcActorActor);
+                        }
+                    }
+                    break;
+                case "ArrowUp":
+                    // code for "up arrow" key press.
+                    break;
+                default:
+                    return; // Quit when this doesn't handle the key event.
+            }
+            // Cancel the default action to avoid it being handled twice
+            event.preventDefault();
+        }, true);
 
     </script>
 </head>
@@ -653,22 +702,13 @@
                     <div class="bodyRow">
                         <!-- ********** START: Mock EMR Content ********** -->
 
-                        <!-- <div class="card shadow p-3 m-5 bg-body rounded">
-                            <div class="card-body">
-                                <select class="serverSelect" id="FHIRServer"></select>
-                            </div>
-                        </div> -->
+
                         <div class="alert alert-danger text-center" role="alert">
                             This is a non-PHI demo. There is no PHI wwithin. Please do not enter any PHI.
                         </div>
                         <div class="card shadow p-3 m-5 bg-body rounded">
                             <!-- <div id="patientDetails" class="p-3 mb-2 mx-5"> -->
 
-
-                            <button class="btn btn-primary" type="button" id="submitButton" onclick="submitData(abcActorActor)">
-                                <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-                                Submit
-                            </button>
 
                             <div class="input-group py-3">
                                 <span class="input-group-text">Calculation:</span>
@@ -683,17 +723,18 @@
                             <!-- </div> -->
                         </div>
 
-                        <!-- <div style="position: fixed; top: calc(100vh - 70px); border: 3px solid #804;">test2</div> -->
-
 
                         <!-- ********** END: Mock EMR Content ********** -->
                     </div>
                 </div>
 
                 <!-- Input box (Ask Smile) -->
-                <div style="border-radius: 5px; border: 1px solid #ced4da; margin: 0px 10px 10px 10px;">
+                <div id="sendButton" class="sendButton" onclick="submitData(abcActorActor)">
+                    <div class="sbIcon"><i class="fa-regular fa-paper-plane"></i></div>
+                </div>
+                <div style="border-radius: 5px; border: 1px solid #ced4da; margin: 0px 20px 20px 20px;">
                     <div>
-                        <span class="input-group-text" style="border-radius: 0%;"><i class="fa-solid fa-brain"></i>&nbsp;&nbsp;Ask Smile:</span>
+                        <span id="selectedValueHeader" class="input-group-text" style="border-radius: 0%;"><i class="fa-solid fa-brain"></i>&nbsp;&nbsp;Ask Smile:</span>
                         <textarea id="selectedValue" class="form-control" style="height: 100px; border-radius: 0%;" aria-label="With textarea"></textarea>
                     </div>
                 </div>
