@@ -86,7 +86,7 @@ function showResponseResources(promptId) {
     const aiBaseUrl = getAiBaseUrl();
 
     const url = `${window.location.origin}${window.location.pathname}?id=${promptId}`;
-    const urlMessageDiv = $(`<div class="msg assistant"><i class="fa-solid fa-brain"></i>&nbsp;&nbsp;URL: <a href="${url}">${url}</a></div>`);
+    const urlMessageDiv = $(`<div class="msg assistant"><i class="fa-solid fa-brain"></i>&nbsp;&nbsp;Share this session: <a href="${url}">${url}</a></div>`);
     oiResponse.append(urlMessageDiv);
 
     fetch(`${aiBaseUrl}/output/${promptId}`, {
