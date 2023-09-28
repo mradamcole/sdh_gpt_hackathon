@@ -19,6 +19,23 @@ The application will now be available at
 http://localhost:3000/hackathon.html
 ```
 
+### To use local/alternate smile-ai endpoint
+
+See the [`smile-ai`](https://gitlab.com/alexander.dahl/smile-ai) project on how to run it locally.
+
+To specify a locally running (or altenate) instance of `smile-ai`, modify the top section of the `patientService.js` file:
+
+```
+function getAiBaseUrl() {
+    // To run against a local smile-ai instance, uncomment this line:
+    //return 'http://localhost:5002';
+
+    ...    
+}
+```
+
+Simply uncomment the line above (and modify if needed) as described.
+
 ## Production docker container deployment
 
 ### Build

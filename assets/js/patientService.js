@@ -186,9 +186,11 @@ function submitData(role) {
     const patientIdVar = $('#PatientSearchValue');
     const patientId = patientIdVar.length ? patientIdVar.val() : null;
     const accessToken = getAccessToken();
+    const grounding = $("#groundings").val().split('\n');
     const patientData = {
         prompt: selectedValue,
         role: role,
+        grounding,
         accessToken,
     };
 
